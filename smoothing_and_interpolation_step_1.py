@@ -13,15 +13,16 @@ from scipy import interpolate
 import os
 from matplotlib.pyplot import cm
 import seaborn as sns
+
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
 CURVES_INTERP_MIN = 300
 CURVES_INTERP_MAX = 550
 
-#sns_settheme
+# sns_settheme
 sns.set_theme()
 
-#function definitions
+# function definitions
 def load_sites_data(filelist):
     """
     Return a dataframe given a list of files containing data in the form of x y_i
@@ -29,7 +30,11 @@ def load_sites_data(filelist):
     """
     df = []
     for filename in filelist:
-        dfx = pd.read_csv(filename, sep=" ", names=["wv", filename[:-4]])
+        dfx = pd.read_csv(
+            filename,
+            sep=" ",
+            names=["wv", os.path.basename(filename).replace(".txt", "")],
+        )
         dfx = dfx.set_index(dfx["wv"], drop=True)
         dfx = dfx.drop(dfx.columns[0], axis=1)
         df.append(dfx)
