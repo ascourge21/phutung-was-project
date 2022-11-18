@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn import preprocessing
 from scipy import interpolate
 import os
-
+from matplotlib.pyplot import cm
 
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
@@ -162,19 +162,36 @@ def plot_and_save_interped_curves(interped_curves_path):
     y = curves["y"]
     y_tlf = curves["y_tlf"]
     y_hlf = curves["y_hlf"]
-    plt.figure(1)
-    for i, y_i in enumerate(y):
-        plt.plot(x, y[i], label="site %d" % (i + 1))
-    plt.plot(x, y_tlf, "--", label="TLF")
-    plt.fill_between(x, y_tlf, color="blue", alpha=0.05)
-    plt.plot(x, y_hlf, "--", label="HLF")
-    plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Normalized Amplitude")
-    plt.legend(
-        bbox_to_anchor=(1.28, 0.09),
-        loc="lower right",
-        bbox_transform=plt.gcf().transFigure,
-    )
+    fig,ax = plt.subplots(figsize=(3.5,3.5))
+
+	SMALL_SIZE = 6
+	MEDIUM_SIZE = 10
+	BIGGER_SIZE = 12
+
+	color = iter(cm.rainbow(np.linspace(0, 1, 17)))
+
+	    
+	plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+	plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+	plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
+	plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+	plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+	plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+	plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+	ax = plt.gca()
+	ax.text(350, 0.6, r'TLF', fontsize=12)
+	ax.text(470, 0.6, r'HLF', fontsize=12)
+	for i in range(len(y)):
+	    c = next(color)
+	    plt.plot(x,y[i],c=c,label = f'{i+1}')
+	plt.plot(x,y_tlf,'--',c='black')
+	plt.fill_between(x,y_tlf,color='blue',alpha=0.20)
+	plt.plot(x,y_hlf,'--',c='black')
+	plt.fill_between(x,y_hlf,color='magenta',alpha=0.20)
+	plt.xlabel('Wavelength (nm)')
+	plt.ylabel('Normalized Amplitude')
+	#plt.legend(bbox_to_anchor=(1.28,0.09),loc="lower right",bbox_transform=plt.gcf().transFigure)
+	plt.legend()
     plt.savefig("interped_curves.png", bbox_inches="tight", dpi=150)
     plt.close()
 
