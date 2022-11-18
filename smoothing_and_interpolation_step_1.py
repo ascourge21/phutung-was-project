@@ -29,7 +29,7 @@ def load_sites_data(filelist):
     """
     df = []
     for filename in filelist:
-        dfx = pd.read_csv(filename, sep=" ", names=["wv", filename[:-4]])
+        dfx = pd.read_csv(filename, sep=" ", names=["wv", os.path.basename(filename).replace(".txt", "")])
         dfx = dfx.set_index(dfx["wv"], drop=True)
         dfx = dfx.drop(dfx.columns[0], axis=1)
         df.append(dfx)
