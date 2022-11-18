@@ -15,6 +15,8 @@ import os
 
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
+CURVES_INTERP_MIN = 300
+CURVES_INTERP_MAX = 550
 
 
 def load_sites_data(filelist):
@@ -32,11 +34,11 @@ def load_sites_data(filelist):
 
 
 def load_canonical_signals():
-    df1 = pd.read_csv('trypt.csv')
-    df1 = df1.set_index('Wavelength (nm)')
+    df1 = pd.read_csv("trypt.csv")
+    df1 = df1.set_index("Wavelength (nm)")
 
-    df2 = pd.read_csv('hlf.txt',sep=' ')
-    df2 = df2.set_index('wl')
+    df2 = pd.read_csv("hlf.txt", sep=" ")
+    df2 = df2.set_index("wl")
     return df1, df2
 
 
@@ -48,12 +50,12 @@ def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=
     def smooth_data_frame(dfx):
         for column in dfx:
             smoothed_vals = np.zeros(dfx[column].shape)
-            i=0
+            i = 0
             for x_position in dfx.index:
-                kernel = np.exp(-(dfx.index-x_position)**2 / (2 * sigma ** 2))
+                kernel = np.exp(-((dfx.index - x_position) ** 2) / (2 * sigma**2))
                 kernel = kernel / sum(kernel)
-                smoothed_vals[i] = sum(dfx[column]* kernel)
-                i+=1
+                smoothed_vals[i] = sum(dfx[column] * kernel)
+                i += 1
             dfx[column] = smoothed_vals
         return dfx
 
@@ -61,9 +63,9 @@ def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=
     tlf_smoothed = smooth_data_frame(tlf_df)
     hlf_smoothed = smooth_data_frame(hlf_df)
     result = {
-        'sites': sites_smoothed,
-        'hlf': hlf_smoothed,
-        'tlf': tlf_smoothed,
+        "sites": sites_smoothed,
+        "hlf": hlf_smoothed,
+        "tlf": tlf_smoothed,
     }
     with open(save_path, "wb") as file:
         pickle.dump(result, file)
@@ -74,9 +76,9 @@ def plot_and_save_smoothed_curves(smooth_curves_path):
     with open(smooth_curves_path, "rb") as file:
         curves = pickle.load(file)
     plt.figure(1)
-    curves['sites'].plot(ax=plt.gca())
-    curves['hlf'].plot(ax=plt.gca())
-    curves['tlf'].plot(ax=plt.gca())
+    curves["sites"].plot(ax=plt.gca())
+    curves["hlf"].plot(ax=plt.gca())
+    curves["tlf"].plot(ax=plt.gca())
     plt.savefig("smoothed_curves.png")
     plt.close()
 
@@ -98,9 +100,9 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         return scaled_df
 
     normed_signals = {
-        'sites': norm_df(smoothed_curves["sites"]),
-        'hlf': norm_df(smoothed_curves["hlf"]),
-        'tlf': norm_df(smoothed_curves["tlf"]),
+        "sites": norm_df(smoothed_curves["sites"]),
+        "hlf": norm_df(smoothed_curves["hlf"]),
+        "tlf": norm_df(smoothed_curves["tlf"]),
     }
     with open(save_path, "wb") as file:
         pickle.dump(normed_signals, file)
@@ -111,19 +113,76 @@ def plot_and_save_normed_curves(norm_curves_path):
     with open(norm_curves_path, "rb") as file:
         curves = pickle.load(file)
     plt.figure(1)
-    curves['sites'].plot(ax=plt.gca())
-    curves['hlf'].plot(ax=plt.gca())
-    curves['tlf'].plot(ax=plt.gca())
+    curves["sites"].plot(ax=plt.gca())
+    curves["hlf"].plot(ax=plt.gca())
+    curves["tlf"].plot(ax=plt.gca())
     plt.savefig("normed_curves.png")
+    plt.close()
+
+
+def get_interped_curves(normed_curves_path, save_path, overwrite=False):
+    if not overwrite and os.path.exists(save_path):
+        with open(save_path, "rb") as file:
+            return pickle.load(file)
+
+    with open(normed_curves_path, "rb") as file:
+        smoothed_curves = pickle.load(file)
+
+    # declare interp functions and apply to x
+    x = np.arange(CURVES_INTERP_MIN, CURVES_INTERP_MAX, 0.5)
+    y = []
+    for location in smoothed_curves["sites"].columns:
+        interp_f = interpolate.interp1d(
+            smoothed_curves["sites"].index, smoothed_curves["sites"][location]
+        )
+        y.append(interp_f(x))
+    y_tlf = interpolate.interp1d(
+        smoothed_curves["tlf"].index, smoothed_curves["tlf"]["500ppb_500ms"]
+    )(x)
+    y_hlf = interpolate.interp1d(
+        smoothed_curves["hlf"].index, smoothed_curves["hlf"]["hlf"]
+    )(x)
+
+    interped_signals = {
+        "x": x,
+        "y": y,
+        "y_tlf": y_tlf,
+        "y_hlf": y_hlf,
+    }
+
+    with open(save_path, "wb") as file:
+        pickle.dump(interped_signals, file)
+    return interped_signals
+
+
+def plot_and_save_interped_curves(interped_curves_path):
+    with open(interped_curves_path, "rb") as file:
+        curves = pickle.load(file)
+    x = curves["x"]
+    y = curves["y"]
+    y_tlf = curves["y_tlf"]
+    y_hlf = curves["y_hlf"]
+    plt.figure(1)
+    for i, y_i in enumerate(y):
+        plt.plot(x, y[i], label="site %d" % (i + 1))
+    plt.plot(x, y_tlf, "--", label="TLF")
+    plt.fill_between(x, y_tlf, color="blue", alpha=0.05)
+    plt.plot(x, y_hlf, "--", label="HLF")
+    plt.xlabel("Wavelength (nm)")
+    plt.ylabel("Normalized Amplitude")
+    plt.legend(
+        bbox_to_anchor=(1.28, 0.09),
+        loc="lower right",
+        bbox_transform=plt.gcf().transFigure,
+    )
+    plt.savefig("interped_curves.png", bbox_inches="tight", dpi=150)
     plt.close()
 
 
 # load data files
 data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
 print("total number of files: ", len(data_file_paths))
-df_signals = pd.concat(
-    load_sites_data(data_file_paths), axis=1
-)
+df_signals = pd.concat(load_sites_data(data_file_paths), axis=1)
 df_tlf, df_hlf = load_canonical_signals()
 
 
@@ -140,3 +199,7 @@ save_path_normed = "normed_dfs.pkl"
 normed_curves = get_normalized_curves(save_path_smooth, save_path_normed)
 plot_and_save_normed_curves(save_path_normed)
 
+# interoplate and save
+save_path_interped = "interped_dfs.pkl"
+interped_curves = get_interped_curves(save_path_normed, save_path_interped)
+plot_and_save_interped_curves(save_path_interped)
