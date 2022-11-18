@@ -17,7 +17,6 @@ sns.set_theme()
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
 
-def change_font_size():
 def perform_regression(normed_save_path,interped_save_path,save_path,overwrite=False):
     if not overwrite and os.path.exists(save_path):
         with open(save_path, "rb") as file:
