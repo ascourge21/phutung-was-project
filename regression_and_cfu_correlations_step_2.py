@@ -53,6 +53,7 @@ def perform_regression(
     c_array = c_array.reshape(len(y), coeff_matrix.shape[1])
     c_df = pd.DataFrame(data=c_array, columns=["c", "TLF", "HLF"])
     c_df["location"] = locations
+
     # Comparision with the CFU/ plate count
     df_cfu = pd.read_excel("Bagmati Water Details.xlsx", "After Averaging")
     df_cfu = df_cfu[["Sample ID", "CFU/100ml"]]
@@ -61,6 +62,7 @@ def perform_regression(
     cfu_list = []
     for location in locations:
         cfu_list.append(df_cfu.loc[location].values[0])
+
     # final data frame
     fdf = c_df.copy()
     fdf = fdf.set_index("location")
@@ -78,7 +80,7 @@ def plot_regression(fdf):
     # following 10 lines of code control the font size of matplotlib plots explicitly. may affect other functions
     # that follow this
 
-    fig, ax = plt.subplots(1, 2, figsize=(6, 3), sharey=True)
+    fig, ax = plt.subplots(1, 2, figsize=(9, 3), sharey=True)
     SMALL_SIZE = 10
     MEDIUM_SIZE = 12
     BIGGER_SIZE = 14

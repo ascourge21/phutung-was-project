@@ -166,7 +166,7 @@ def plot_and_save_interped_curves(interped_curves_path):
     y = curves["y"]
     y_tlf = curves["y_tlf"]
     y_hlf = curves["y_hlf"]
-    fig, ax = plt.subplots(figsize=(3.5, 3.5))
+    fig, ax = plt.subplots(figsize=(5, 3.5))
 
     SMALL_SIZE = 6
     MEDIUM_SIZE = 10
