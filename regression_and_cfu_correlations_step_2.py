@@ -6,6 +6,13 @@ import pickle
 
 # import statements
 from scipy import stats
+from sklearn.metrics import (
+    roc_auc_score,
+    f1_score,
+    recall_score,
+    precision_score,
+    roc_curve,
+)
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -14,8 +21,7 @@ import seaborn as sns
 # sns_settheme
 sns.set_theme()
 
-# change this to match your system paths, currently set to this folder only
-ROOT_FILE_PATH = "."
+PRESENCE_CUTOFF = 340000
 
 
 def perform_regression(
@@ -130,8 +136,71 @@ def plot_regression(fdf):
     ax[1].annotate("p-value: {:.2f}".format(p_value), (0.78, 1.15 * 1e6))
 
     plt.savefig("sCFUvsTLFnHLF.png", dpi=150, bbox_inches="tight")
+    plt.close()
 
 
+def plot_and_save_roc_curves(score, fpr, tpr, title):
+    lw = 2
+    plt.figure(2)
+    plt.plot(fpr, tpr, label="ROC curve (area = %0.2f)" % score)
+    plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.title(title)
+    plt.legend(loc="lower right")
+    with open("detection_roc_auc.png", "wb") as file:
+        plt.savefig(file)
+    plt.close()
+
+
+def get_auc_sensitivity_specificity(cfu, y_tlf, present_cutoff=PRESENCE_CUTOFF):
+    def get_y_true_y_pred(cfu_y, tlf_y, cfu_cutoff, tlf_cutoff, for_auc=False):
+        y_true, y_pred = [], []
+        for cfu_i, y_tlf_i in zip(cfu, y_tlf):
+            y_true.append(cfu_i > cfu_cutoff)
+            if for_auc:
+                y_pred.append(y_tlf_i)
+            else:
+                y_pred.append(y_tlf_i > tlf_cutoff)
+        return y_true, y_pred
+
+    y_true, y_pred = get_y_true_y_pred(cfu, y_tlf, present_cutoff, None, for_auc=True)
+    auc_score = roc_auc_score(y_true, y_pred)
+    fpr, tpr, _ = roc_curve(y_true, y_pred)
+    print("AUC score at cutoff: {}, is: {:0.3f}".format(present_cutoff, auc_score))
+    plot_and_save_roc_curves(
+        auc_score,
+        fpr,
+        tpr,
+        "ROC-AUC for detection at CFU cutoff of:  %d" % present_cutoff,
+    )
+
+    best_cutoff, best_f1 = None, -1
+    for tlf_cutoff in np.linspace(np.min(y_tlf), np.max(y_tlf), 20):
+        y_true, y_pred = get_y_true_y_pred(
+            cfu, y_tlf, present_cutoff, tlf_cutoff, for_auc=False
+        )
+        f1 = f1_score(y_true, y_pred)
+        if f1 > best_f1:
+            best_cutoff = tlf_cutoff
+            best_f1 = f1
+
+    y_true, y_pred = get_y_true_y_pred(
+        cfu, y_tlf, present_cutoff, best_cutoff, for_auc=False
+    )
+
+    print(
+        "cfu cutoff: {}, best tlf cutoff: {:0.3f}".format(present_cutoff, best_cutoff)
+    )
+    print("F1-score: {:0.3f}".format(f1_score(y_true, y_pred)))
+    print("Sensitivity: {:0.3f}".format(recall_score(y_true, y_pred)))
+    print("Specificity: {:0.3f}".format(f1_score(~np.array(y_true), ~np.array(y_pred))))
+    print("Precision: {:0.3f}".format(precision_score(y_true, y_pred)))
+
+
+############### REGRESSION
 # perform regression and add CFU to the final d
 save_path_normed = "normed_dfs.pkl"
 save_path_interped = "interped_dfs.pkl"
@@ -139,5 +208,9 @@ save_path_regressed = "regressed_df.pkl"
 final_dataframe = perform_regression(
     save_path_normed, save_path_interped, save_path_regressed
 )
-
 plot_regression(final_dataframe)
+
+
+############### CLASSIFICATION / DETECTION
+# check AUC score for detection (although the cutoff is arbitary now (median))
+get_auc_sensitivity_specificity(final_dataframe["cfu"], final_dataframe["TLF"])
