@@ -31,16 +31,16 @@ def perform_regression(
         with open(save_path, "rb") as file:
             return pickle.load(file)
     with open(normed_save_path, "rb") as file:
-        curve = pickle.load(file)
+        normed_curves = pickle.load(file)
     with open(interped_save_path, "rb") as file:
-        curves = pickle.load(file)
-    locations = curve["sites"].columns
+        interped_curves = pickle.load(file)
+    locations = normed_curves["sites"].columns
     for p in locations:
         print(p)
-    x = curves["x"]
-    y = curves["y"]
-    y_tlf = curves["y_tlf"]
-    y_hlf = curves["y_hlf"]
+    x = interped_curves["x"]
+    y = interped_curves["y"]
+    y_tlf = interped_curves["y_tlf"]
+    y_hlf = interped_curves["y_hlf"]
 
     y_ones = np.ones(y[2].shape)
 
@@ -201,7 +201,7 @@ def get_auc_sensitivity_specificity(cfu, y_tlf, present_cutoff=PRESENCE_CUTOFF):
 
 
 ############### REGRESSION
-# perform regression and add CFU to the final d
+# perform regression and add CFU to the final
 save_path_normed = "normed_dfs.pkl"
 save_path_interped = "interped_dfs.pkl"
 save_path_regressed = "regressed_df.pkl"
