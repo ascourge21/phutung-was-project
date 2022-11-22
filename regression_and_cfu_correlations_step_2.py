@@ -80,11 +80,16 @@ def perform_regression(
     return fdf
 
 
-def plot_regression(fdf):
+def plot_regression(fdf, logscale=True):
     # with open(finaldf_path, "rb") as file:
     #  fdf = pickle.load(file)
     # following 10 lines of code control the font size of matplotlib plots explicitly. may affect other functions
     # that follow this
+
+    im_save_path = "sCFUvsTLFnHLF.png"
+    if logscale:
+        fdf["cfu"] = fdf["cfu"].map(np.log10)
+        im_save_path = "sCFUvsTLFnHLF_log.png"
 
     fig, ax = plt.subplots(1, 2, figsize=(9, 3), sharey=True)
     SMALL_SIZE = 10
@@ -102,7 +107,10 @@ def plot_regression(fdf):
     p1 = np.poly1d(z1)
     ax[0].plot(fdf["TLF"], p1(fdf["TLF"]), "r")
     ax[0].set_xlabel(r"$a_T$")
-    ax[0].set_ylabel(r"CFU")
+    if logscale:
+        ax[0].set_ylabel(r"log(CFU)")
+    else:
+        ax[0].set_ylabel(r"CFU")
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         fdf["TLF"], fdf["cfu"]
     )
@@ -114,8 +122,13 @@ def plot_regression(fdf):
         p_value,
         std_err,
     )
-    ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.18, 1.25 * 1e6))
-    ax[0].annotate("p-value:{:.2f}".format(p_value), (1.18, 1.15 * 1e6))
+    if logscale:
+        ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 6.0))
+        ax[0].annotate("p-value:{:.2f}".format(p_value), (1.10, 5.9))
+    else:
+        ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 1.25 * 1e6))
+        ax[0].annotate("p-value:{:.2f}".format(p_value), (1.10, 1.15 * 1e6))
+
     ax[1].scatter(fdf["HLF"], fdf["cfu"])
     z2 = np.polyfit(fdf["HLF"], fdf["cfu"], 1)
     p2 = np.poly1d(z2)
@@ -132,10 +145,14 @@ def plot_regression(fdf):
         p_value,
         std_err,
     )
-    ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.78, 1.25 * 1e6))
-    ax[1].annotate("p-value: {:.2f}".format(p_value), (0.78, 1.15 * 1e6))
+    if logscale:
+        ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.9, 6.0))
+        ax[1].annotate("p-value: {:.2f}".format(p_value), (0.9, 5.9))
+    else:
+        ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.78, 1.25 * 1e6))
+        ax[1].annotate("p-value: {:.2f}".format(p_value), (0.78, 1.15 * 1e6))
 
-    plt.savefig("sCFUvsTLFnHLF.png", dpi=150, bbox_inches="tight")
+    plt.savefig(im_save_path, dpi=150, bbox_inches="tight")
     plt.close()
 
 
@@ -208,9 +225,9 @@ save_path_regressed = "regressed_df.pkl"
 final_dataframe = perform_regression(
     save_path_normed, save_path_interped, save_path_regressed
 )
-plot_regression(final_dataframe)
+plot_regression(final_dataframe, logscale=True)
 
 
 ############### CLASSIFICATION / DETECTION
 # check AUC score for detection (although the cutoff is arbitary now (median))
-get_auc_sensitivity_specificity(final_dataframe["cfu"], final_dataframe["TLF"])
+# get_auc_sensitivity_specificity(final_dataframe["cfu"], final_dataframe["TLF"])
