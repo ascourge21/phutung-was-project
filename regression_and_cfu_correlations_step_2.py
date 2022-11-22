@@ -19,7 +19,7 @@ import pandas as pd
 import seaborn as sns
 
 # sns_settheme
-sns.set_theme()
+sns.set_theme(style = 'ticks')
 
 PRESENCE_CUTOFF = 340000
 

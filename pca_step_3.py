@@ -10,7 +10,7 @@ import seaborn as sns
 raw_data_path = "interped_dfs.pkl"
 WHITEN = True
 
-sns.set_theme()
+sns.set_theme(style = 'ticks')
 
 def pca_and_plot_components():
     with open(raw_data_path, "rb") as file:
