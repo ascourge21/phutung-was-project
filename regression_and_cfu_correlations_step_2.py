@@ -19,7 +19,7 @@ import pandas as pd
 import seaborn as sns
 
 # sns_settheme
-sns.set_theme()
+sns.set_theme(style = 'ticks')
 
 PRESENCE_CUTOFF = 340000
 
@@ -156,8 +156,8 @@ def plot_regression(fdf, logscale=True):
     ax[1].tick_params(axis='both', which='minor', labelsize=14)
 
     if logscale:
-        ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.88, 6.1))
-        ax[1].annotate("p-value: {:.2f}".format(p_value), (0.88, 5.95))
+        ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.78, 6.1))
+        ax[1].annotate("p-value: {:.2f}".format(p_value), (0.78, 5.95))
     else:
         ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.78, 1.25 * 1e6))
         ax[1].annotate("p-value: {:.2f}".format(p_value), (0.78, 1.15 * 1e6))

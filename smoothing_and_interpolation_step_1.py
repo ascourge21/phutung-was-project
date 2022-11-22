@@ -20,7 +20,7 @@ CURVES_INTERP_MIN = 300
 CURVES_INTERP_MAX = 550
 
 # sns_settheme
-sns.set_theme()
+sns.set_theme(style = 'ticks')
 
 NORMALIZE = True
 
