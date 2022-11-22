@@ -129,6 +129,13 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
             print(np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
         return dfx_scaled
 
+    def min_norm_df(dfx):
+        column_min = {}
+        dfx_scaled = pd.DataFrame.copy(dfx)
+        for column in dfx_scaled.columns:
+            dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
+        return dfx_scaled
+
     normed_signals = {
         "sites": smoothed_curves["sites"],
         "hlf": min_max_norm_df(smoothed_curves["hlf"]),
