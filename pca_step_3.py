@@ -59,8 +59,12 @@ def pca_and_plot_components():
     plt.rc("legend", fontsize=SMALL_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    pca_comp_1_norm = pca.components_[0] / np.max(pca.components_[0])
-    pca_comp_2_norm = pca.components_[1] / np.max(pca.components_[1])
+    pca_comp_1_norm = (pca.components_[0] - np.min(pca.components_[0])) / (
+        np.max(pca.components_[0]) - np.min(pca.components_[0])
+        )
+    pca_comp_2_norm = (pca.components_[1] - np.min(pca.components_[1])) / (
+        np.max(pca.components_[1]) - np.min(pca.components_[0])
+    )
     draw_inds = np.arange(0, len(normalized_raw_data["x"]), 5)
     plot_x = normalized_raw_data["x"][draw_inds]
     plt.plot(plot_x, pca_comp_1_norm[draw_inds], "gx", label="PC 1")

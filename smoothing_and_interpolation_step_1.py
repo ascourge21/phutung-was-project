@@ -113,7 +113,7 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
     with open(smoothed_curves_path, "rb") as file:
         smoothed_curves = pickle.load(file)
 
-    def norm_df(dfx):
+    def min_max_norm_df(dfx):
         scaler = preprocessing.MinMaxScaler()
         names = dfx.columns
         d = scaler.fit_transform(dfx)
@@ -121,10 +121,17 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         scaled_df = scaled_df.set_index(dfx.index)
         return scaled_df
 
+    def min_norm_df(dfx):
+        column_min = {}
+        dfx_scaled = pd.DataFrame.copy(dfx)
+        for column in dfx_scaled.columns:
+            dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
+        return dfx_scaled
+
     normed_signals = {
-        "sites": norm_df(smoothed_curves["sites"]),
-        "hlf": norm_df(smoothed_curves["hlf"]),
-        "tlf": norm_df(smoothed_curves["tlf"]),
+        "sites": min_norm_df(smoothed_curves["sites"]),
+        "hlf": min_max_norm_df(smoothed_curves["hlf"]),
+        "tlf": min_max_norm_df(smoothed_curves["tlf"]),
     }
     with open(save_path, "wb") as file:
         pickle.dump(normed_signals, file)
