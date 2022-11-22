@@ -95,22 +95,24 @@ def plot_regression(fdf, logscale=True):
     SMALL_SIZE = 10
     MEDIUM_SIZE = 12
     BIGGER_SIZE = 14
-    plt.rc("font", size=SMALL_SIZE)  # controls default text sizes
+    plt.rc("font", size=MEDIUM_SIZE)  # controls default text sizes
     plt.rc("axes", titlesize=BIGGER_SIZE)  # fontsize of the axes title
     plt.rc("axes", labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
-    plt.rc("xtick", labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
-    plt.rc("ytick", labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
-    plt.rc("legend", fontsize=SMALL_SIZE)  # legend fontsize
+    plt.rc("font", weight="bold")
+    plt.rc("xtick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+    plt.rc("ytick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+    plt.rc("legend", fontsize=BIGGER_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
     ax[0].scatter(fdf["TLF"], fdf["cfu"])
     z1 = np.polyfit(fdf["TLF"], fdf["cfu"], 1)
     p1 = np.poly1d(z1)
     ax[0].plot(fdf["TLF"], p1(fdf["TLF"]), "r")
-    ax[0].set_xlabel(r"$a_T$")
+    ax[0].set_xlabel(r"$a_T$", fontsize=16)
     if logscale:
-        ax[0].set_ylabel(r"log(CFU)")
+        ax[0].set_ylabel(r"log(CFU/100ml)", fontsize=16)
     else:
-        ax[0].set_ylabel(r"CFU")
+        ax[0].set_ylabel(r"CFU", fontsize=16)
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         fdf["TLF"], fdf["cfu"]
     )
@@ -122,9 +124,13 @@ def plot_regression(fdf, logscale=True):
         p_value,
         std_err,
     )
+
+    ax[0].tick_params(axis='both', which='major', labelsize=14)
+    ax[0].tick_params(axis='both', which='minor', labelsize=14)
+
     if logscale:
-        ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 6.0))
-        ax[0].annotate("p-value:{:.2f}".format(p_value), (1.10, 5.9))
+        ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 6.1))
+        ax[0].annotate("p-value:{:.2f}".format(p_value), (1.10, 5.95))
     else:
         ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 1.25 * 1e6))
         ax[0].annotate("p-value:{:.2f}".format(p_value), (1.10, 1.15 * 1e6))
@@ -133,7 +139,7 @@ def plot_regression(fdf, logscale=True):
     z2 = np.polyfit(fdf["HLF"], fdf["cfu"], 1)
     p2 = np.poly1d(z2)
     ax[1].plot(fdf["HLF"], p2(fdf["HLF"]), "r")
-    ax[1].set_xlabel(r"$a_H$")
+    ax[1].set_xlabel(r"$a_H$", fontsize=16)
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         fdf["HLF"], fdf["cfu"]
     )
@@ -145,9 +151,13 @@ def plot_regression(fdf, logscale=True):
         p_value,
         std_err,
     )
+
+    ax[1].tick_params(axis='both', which='major', labelsize=14)
+    ax[1].tick_params(axis='both', which='minor', labelsize=14)
+
     if logscale:
-        ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.9, 6.0))
-        ax[1].annotate("p-value: {:.2f}".format(p_value), (0.9, 5.9))
+        ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.88, 6.1))
+        ax[1].annotate("p-value: {:.2f}".format(p_value), (0.88, 5.95))
     else:
         ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.78, 1.25 * 1e6))
         ax[1].annotate("p-value: {:.2f}".format(p_value), (0.78, 1.15 * 1e6))
@@ -226,6 +236,8 @@ final_dataframe = perform_regression(
     save_path_normed, save_path_interped, save_path_regressed
 )
 plot_regression(final_dataframe, logscale=True)
+
+
 
 
 ############### CLASSIFICATION / DETECTION

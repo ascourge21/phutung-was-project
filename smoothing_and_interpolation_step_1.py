@@ -22,6 +22,8 @@ CURVES_INTERP_MAX = 550
 # sns_settheme
 sns.set_theme()
 
+NORMALIZE = True
+
 # function definitions
 def load_sites_data(filelist):
     """
@@ -170,7 +172,7 @@ def plot_and_save_interped_curves(interped_curves_path):
     y = curves["y"]
     y_tlf = curves["y_tlf"]
     y_hlf = curves["y_hlf"]
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=(4, 3))
 
     SMALL_SIZE = 6
     MEDIUM_SIZE = 10
@@ -185,7 +187,7 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.rc("ytick", labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
     plt.rc("legend", fontsize=SMALL_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
-    ax = plt.gca()
+
     ax.text(350, 0.6, r"TLF", fontsize=12)
     ax.text(470, 0.6, r"HLF", fontsize=12)
     for i in range(len(y)):
@@ -195,8 +197,10 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.fill_between(x, y_tlf, color="blue", alpha=0.20)
     plt.plot(x, y_hlf, "--", c="black")
     plt.fill_between(x, y_hlf, color="magenta", alpha=0.20)
-    plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Normalized Amplitude")
+    plt.xlabel("Wavelength (nm)", fontsize=14)
+    plt.ylabel("Normalized Amplitude", fontsize=14)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
     plt.legend()
     plt.savefig("interped_curves.png", bbox_inches="tight", dpi=150)
     plt.close()
@@ -224,5 +228,8 @@ plot_and_save_normed_curves(save_path_normed)
 
 # interoplate and save
 save_path_interped = "interped_dfs.pkl"
-interped_curves = get_interped_curves(save_path_normed, save_path_interped)
+if NORMALIZE:
+    interped_curves = get_interped_curves(save_path_normed, save_path_interped)
+else:
+    interped_curves = get_interped_curves(save_path_smooth, save_path_interped)
 plot_and_save_interped_curves(save_path_interped)
