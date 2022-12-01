@@ -44,11 +44,23 @@ def load_sites_data(filelist):
 
 
 def load_canonical_signals():
+    def remove_out_of_bound_values(signal_df):
+        out_of_bound_indices = np.logical_or(
+            np.array(signal_df.index) > CURVES_INTERP_MAX,
+            np.array(signal_df.index) < CURVES_INTERP_MIN,
+        )
+        for column in signal_df.columns:
+            signal_df[column][out_of_bound_indices] = 0
+            assert np.alltrue(signal_df[column] >= 0)
+        return signal_df
+
     df1 = pd.read_csv("trypt.csv")
     df1 = df1.set_index("Wavelength (nm)")
+    df1 = remove_out_of_bound_values(df1)
 
     df2 = pd.read_csv("hlf.txt", sep=" ")
     df2 = df2.set_index("wl")
+    df2 = remove_out_of_bound_values(df2)
     return df1, df2
 
 
