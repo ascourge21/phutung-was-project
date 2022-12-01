@@ -133,6 +133,7 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         column_min = {}
         dfx_scaled = pd.DataFrame.copy(dfx)
         for column in dfx_scaled.columns:
+            print('norming', column, np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
             dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
         return dfx_scaled
 
