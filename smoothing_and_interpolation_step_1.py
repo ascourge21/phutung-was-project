@@ -10,14 +10,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import preprocessing
 from scipy import interpolate
+import scipy
 import os
 from matplotlib.pyplot import cm
 import seaborn as sns
 
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
-CURVES_INTERP_MIN = 300
-CURVES_INTERP_MAX = 550
+CURVES_INTERP_MIN = 350
+CURVES_INTERP_MAX = 600
 
 # sns_settheme
 sns.set_theme()
@@ -30,17 +31,28 @@ def load_sites_data(filelist):
     Return a dataframe given a list of files containing data in the form of x y_i
     fileist (list): List of files
     """
-    df = []
+    all_sites_df = []
     for filename in filelist:
+        column_1_name = "wv_" + os.path.basename(filename).replace(".txt", "")
+        column_2_name = os.path.basename(filename).replace(".txt", "")
         dfx = pd.read_csv(
             filename,
             sep=" ",
-            names=["wv", os.path.basename(filename).replace(".txt", "")],
+            names=[column_1_name, column_2_name],
         )
-        dfx = dfx.set_index(dfx["wv"], drop=True)
-        dfx = dfx.drop(dfx.columns[0], axis=1)
-        df.append(dfx)
-    return df
+        all_sites_df.append(dfx)
+
+    wavelengths_df_1 = dfx[column_1_name]
+    wavelengths_df_1 = wavelengths_df_1.rename("wv")
+    combined_df_columns = []
+    combined_df_columns.append(wavelengths_df_1)
+    for df_i in all_sites_df:
+        assert list(df_i[df_i.columns[0]]) == list(wavelengths_df_1)
+        combined_df_columns.append(df_i[df_i.columns[1]])
+    combined_df = pd.concat(combined_df_columns, axis=1)
+    combined_df = combined_df.set_index(combined_df["wv"], drop=True)
+    combined_df = combined_df.drop("wv", axis=1)
+    return combined_df
 
 
 def load_canonical_signals():
@@ -71,14 +83,15 @@ def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=
 
     def smooth_data_frame(dfx):
         for column in dfx:
-            smoothed_vals = np.zeros(dfx[column].shape)
-            i = 0
-            for x_position in dfx.index:
-                kernel = np.exp(-((dfx.index - x_position) ** 2) / (2 * sigma**2))
-                kernel = kernel / sum(kernel)
-                smoothed_vals[i] = sum(dfx[column] * kernel)
-                i += 1
-            dfx[column] = smoothed_vals
+            # smoothed_vals = np.zeros(dfx[column].shape)
+            # i = 0
+            # for x_position in dfx.index:
+            #     kernel = np.exp(-((dfx.index - x_position) ** 2) / (2 * sigma**2))
+            #     kernel = kernel / sum(kernel)
+            #     smoothed_vals[i] = sum(dfx[column] * kernel)
+            #     i += 1
+            # dfx[column] = smoothed_vals
+            dfx[column] = scipy.ndimage.gaussian_filter1d(dfx[column], sigma=5, axis=0)
         return dfx
 
     sites_smoothed = smooth_data_frame(sites_df)
@@ -114,23 +127,25 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         smoothed_curves = pickle.load(file)
 
     def min_max_norm_df(dfx):
-        scaler = preprocessing.MinMaxScaler()
-        names = dfx.columns
-        d = scaler.fit_transform(dfx)
-        scaled_df = pd.DataFrame(d, columns=names)
-        scaled_df = scaled_df.set_index(dfx.index)
-        return scaled_df
-
-    def min_norm_df(dfx):
-        column_min = {}
         dfx_scaled = pd.DataFrame.copy(dfx)
         for column in dfx_scaled.columns:
-            print('norming', column, np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
-            dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
+            df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
+            print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
+            dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
+                np.max(df_nonzero_values) - np.min(df_nonzero_values)
+            )
         return dfx_scaled
 
+    # def min_norm_df(dfx):
+    #     column_min = {}
+    #     dfx_scaled = pd.DataFrame.copy(dfx)
+    #     for column in dfx_scaled.columns:
+    #         print('norming', column, np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
+    #         dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
+    #     return dfx_scaled
+
     normed_signals = {
-        "sites": min_norm_df(smoothed_curves["sites"]), # change to min_norm_df
+        "sites": smoothed_curves["sites"], # change to min_norm_df
         "hlf": min_max_norm_df(smoothed_curves["hlf"]),
         "tlf": min_max_norm_df(smoothed_curves["tlf"]),
     }
@@ -229,7 +244,8 @@ def plot_and_save_interped_curves(interped_curves_path):
 # load data files
 data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
 print("total number of files: ", len(data_file_paths))
-df_signals = pd.concat(load_sites_data(data_file_paths), axis=1)
+# df_signals = pd.concat(load_sites_data(data_file_paths), axis=1)
+df_signals = load_sites_data(data_file_paths)
 df_tlf, df_hlf = load_canonical_signals()
 
 
