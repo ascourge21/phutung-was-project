@@ -35,8 +35,7 @@ def perform_regression(
     with open(interped_save_path, "rb") as file:
         interped_curves = pickle.load(file)
     locations = normed_curves["sites"].columns
-    for p in locations:
-        print(p)
+
     x = interped_curves["x"]
     y = interped_curves["y"]
     y_tlf = interped_curves["y_tlf"]
@@ -57,17 +56,20 @@ def perform_regression(
         print(x[0])
 
     c_array = c_array.reshape(len(y), coeff_matrix.shape[1])
-    c_df = pd.DataFrame(data=c_array, columns=["c", "TLF", "HLF"])
+    c_df = pd.DataFrame(data=c_array, columns=["c", "a_TLF", "a_HLF"])
     c_df["location"] = locations
 
     # Comparision with the CFU/ plate count
     df_cfu = pd.read_excel("Bagmati Water Details.xlsx", "After Averaging")
-    df_cfu = df_cfu[["Sample ID", "CFU/100ml"]]
+    df_cfu = df_cfu[["Sample ID", "CFU/100ml", "TLF (ppb)", "Site number"]]
     df_cfu = df_cfu.set_index(df_cfu["Sample ID"], drop=True).drop("Sample ID", axis=1)
 
-    cfu_list = []
+    cfu_list, tlf_measured_list, site_numbers = [], [], []
     for location in locations:
-        cfu_list.append(df_cfu.loc[location].values[0])
+        row_vals = df_cfu.loc[location].values
+        cfu_list.append(row_vals[0])
+        tlf_measured_list.append(row_vals[1])
+        site_numbers.append(int(row_vals[2]))
 
     # final data frame
     fdf = c_df.copy()
@@ -75,6 +77,8 @@ def perform_regression(
 
     cfulistnp = np.array(cfu_list)
     fdf["cfu"] = cfu_list
+    fdf["tlf_independent"] = tlf_measured_list
+    fdf["site_number"] = site_numbers
     with open(save_path, "wb") as file:
         pickle.dump(fdf, file)
     return fdf
@@ -104,18 +108,21 @@ def plot_regression(fdf, logscale=True):
     plt.rc("legend", fontsize=BIGGER_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    ax[0].scatter(fdf["TLF"], fdf["cfu"])
-    z1 = np.polyfit(fdf["TLF"], fdf["cfu"], 1)
+    ax[0].scatter(fdf["a_TLF"], fdf["cfu"])
+    z1 = np.polyfit(fdf["a_TLF"], fdf["cfu"], 1)
     p1 = np.poly1d(z1)
-    ax[0].plot(fdf["TLF"], p1(fdf["TLF"]), "r")
+    ax[0].plot(fdf["a_TLF"], p1(fdf["a_TLF"]), "r")
     ax[0].set_xlabel(r"$a_T$", fontsize=16)
     if logscale:
         ax[0].set_ylabel(r"log(CFU/100ml)", fontsize=16)
     else:
         ax[0].set_ylabel(r"CFU", fontsize=16)
     slope, intercept, r_value, p_value, std_err = stats.linregress(
-        fdf["TLF"], fdf["cfu"]
+        fdf["a_TLF"], fdf["cfu"]
     )
+    pearson_r = stats.pearsonr(fdf["a_TLF"], fdf["cfu"])
+    spearman_r = stats.spearmanr(fdf["a_TLF"], fdf["cfu"])
+    print(pearson_r, spearman_r)
     print(
         "slope, intercept, r_value, p_value, std_err ",
         slope,
@@ -135,13 +142,13 @@ def plot_regression(fdf, logscale=True):
         ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 1.25 * 1e6))
         ax[0].annotate("p-value:{:.2f}".format(p_value), (1.10, 1.15 * 1e6))
 
-    ax[1].scatter(fdf["HLF"], fdf["cfu"])
-    z2 = np.polyfit(fdf["HLF"], fdf["cfu"], 1)
+    ax[1].scatter(fdf["a_HLF"], fdf["cfu"])
+    z2 = np.polyfit(fdf["a_HLF"], fdf["cfu"], 1)
     p2 = np.poly1d(z2)
-    ax[1].plot(fdf["HLF"], p2(fdf["HLF"]), "r")
+    ax[1].plot(fdf["a_HLF"], p2(fdf["a_HLF"]), "r")
     ax[1].set_xlabel(r"$a_H$", fontsize=16)
     slope, intercept, r_value, p_value, std_err = stats.linregress(
-        fdf["HLF"], fdf["cfu"]
+        fdf["a_HLF"], fdf["cfu"]
     )
     print(
         "slope, intercept, r_value, p_value, std_err ",
@@ -233,7 +240,7 @@ save_path_normed = "normed_dfs.pkl"
 save_path_interped = "interped_dfs.pkl"
 save_path_regressed = "regressed_df.pkl"
 final_dataframe = perform_regression(
-    save_path_normed, save_path_interped, save_path_regressed
+    save_path_normed, save_path_interped, save_path_regressed, overwrite=True
 )
 plot_regression(final_dataframe, logscale=True)
 

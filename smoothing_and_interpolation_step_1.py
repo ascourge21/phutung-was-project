@@ -125,11 +125,12 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         column_min = {}
         dfx_scaled = pd.DataFrame.copy(dfx)
         for column in dfx_scaled.columns:
+            print('norming', column, np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
             dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
         return dfx_scaled
 
     normed_signals = {
-        "sites": min_norm_df(smoothed_curves["sites"]),
+        "sites": min_norm_df(smoothed_curves["sites"]), # change to min_norm_df
         "hlf": min_max_norm_df(smoothed_curves["hlf"]),
         "tlf": min_max_norm_df(smoothed_curves["tlf"]),
     }
@@ -207,11 +208,11 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.rc("legend", fontsize=SMALL_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    ax.text(350, 0.6, r"TLF", fontsize=12)
-    ax.text(470, 0.6, r"HLF", fontsize=12)
+    ax.text(CURVES_INTERP_MIN + 50, 0.6, r"TLF", fontsize=12)
+    ax.text(CURVES_INTERP_MAX - 80, 0.6, r"HLF", fontsize=12)
     for i in range(len(y)):
         c = next(color)
-        plt.plot(x, y[i], c=c, label=f"{i+1}")
+        plt.plot(x, y[i] / np.max(y[i]), c=c, label=f"{i+1}")
     plt.plot(x, y_tlf, "--", c="black")
     plt.fill_between(x, y_tlf, color="blue", alpha=0.20)
     plt.plot(x, y_hlf, "--", c="black")
@@ -242,13 +243,19 @@ plot_and_save_smoothed_curves(save_path_smooth)
 ############### INTERPOLATING
 # normalize and save
 save_path_normed = "normed_dfs.pkl"
-normed_curves = get_normalized_curves(save_path_smooth, save_path_normed)
+normed_curves = get_normalized_curves(
+    save_path_smooth, save_path_normed, overwrite=True
+)
 plot_and_save_normed_curves(save_path_normed)
 
 # interoplate and save
 save_path_interped = "interped_dfs.pkl"
 if NORMALIZE:
-    interped_curves = get_interped_curves(save_path_normed, save_path_interped)
+    interped_curves = get_interped_curves(
+        save_path_normed, save_path_interped, overwrite=True
+    )
 else:
-    interped_curves = get_interped_curves(save_path_smooth, save_path_interped)
+    interped_curves = get_interped_curves(
+        save_path_smooth, save_path_interped, overwrite=True
+    )
 plot_and_save_interped_curves(save_path_interped)
