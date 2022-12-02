@@ -97,4 +97,5 @@ def pca_and_plot_components():
     plt.close()
 
 
-pca_and_plot_components()
+if __name__ == "__main__":
+    pca_and_plot_components()
