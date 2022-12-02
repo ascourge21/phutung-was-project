@@ -132,8 +132,8 @@ def plot_regression(fdf, logscale=True):
         std_err,
     )
 
-    ax[0].tick_params(axis='both', which='major', labelsize=14)
-    ax[0].tick_params(axis='both', which='minor', labelsize=14)
+    ax[0].tick_params(axis="both", which="major", labelsize=14)
+    ax[0].tick_params(axis="both", which="minor", labelsize=14)
 
     if logscale:
         ax[0].annotate(r"$r_p$:{:.2f}".format(r_value), (1.10, 6.1))
@@ -159,8 +159,8 @@ def plot_regression(fdf, logscale=True):
         std_err,
     )
 
-    ax[1].tick_params(axis='both', which='major', labelsize=14)
-    ax[1].tick_params(axis='both', which='minor', labelsize=14)
+    ax[1].tick_params(axis="both", which="major", labelsize=14)
+    ax[1].tick_params(axis="both", which="minor", labelsize=14)
 
     if logscale:
         ax[1].annotate(r"$r_p$: {:.2f}".format(r_value), (0.88, 6.1))
@@ -187,13 +187,13 @@ def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
 
     title = ""
     if x_log and y_log:
-        title = 'log-log-plot'
+        title = "log-log-plot"
     elif x_log and ~y_log:
-        title = 'log-linear-plot'
+        title = "log-linear-plot"
     elif ~x_log and y_log:
-        title = 'linear-log-plot'
+        title = "linear-log-plot"
     elif ~x_log and ~y_log:
-        title = 'linear-linear-plot'
+        title = "linear-linear-plot"
     else:
         raise ValueError("need to be one of the above 4")
 
@@ -211,12 +211,18 @@ def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
     slope, intercept, r_value, p_value, std_err = stats.linregress(
-        fdf["cfu"], fdf["a_TLF"],
+        fdf["cfu"],
+        fdf["a_TLF"],
     )
     pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_TLF"])
     spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_TLF"])
-    ax.scatter(fdf["cfu"], fdf["a_TLF"], c="green",
-        label="tlf, r-pea: {:0.2f}, r-spe: {:0.2f}".format(pearson_r.statistic, spearman_r.correlation),
+    ax.scatter(
+        fdf["cfu"],
+        fdf["a_TLF"],
+        c="green",
+        label="tlf, r-pea: {:0.2f}, r-spe: {:0.2f}".format(
+            pearson_r.statistic, spearman_r.correlation
+        ),
     )
     ax.set_xlabel(x_label, fontsize=16)
     ax.set_ylabel(y_label, fontsize=16)
@@ -241,8 +247,13 @@ def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
     )
     pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_HLF"])
     spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_HLF"])
-    ax.scatter(fdf["cfu"], fdf["a_HLF"], c="red",
-        label="hlf, r-pea: {:0.2f}, r-spe: {:0.2f}".format(pearson_r.statistic, spearman_r.correlation),
+    ax.scatter(
+        fdf["cfu"],
+        fdf["a_HLF"],
+        c="red",
+        label="hlf, r-pea: {:0.2f}, r-spe: {:0.2f}".format(
+            pearson_r.statistic, spearman_r.correlation
+        ),
     )
     # ax.set_ylabel(r"$a_{HLF}$", fontsize=16)
 
@@ -261,7 +272,7 @@ def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
     )
 
     plt.title(title)
-    plt.legend(loc='lower right')
+    plt.legend(loc="lower right")
     plt.savefig(im_save_path, dpi=100, bbox_inches="tight")
     plt.close()
 
@@ -335,11 +346,12 @@ save_path_regressed = "regressed_df.pkl"
 final_dataframe = perform_regression(
     save_path_normed, save_path_interped, save_path_regressed, overwrite=True
 )
-plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_linear",  x_log=False, y_log=False)
-plot_regression_v2(final_dataframe, "coeff_and_cfu_log_linear",  x_log=True, y_log=False)
-plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_log",  x_log=False, y_log=True)
-plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log",  x_log=True, y_log=True)
-
+plot_regression_v2(
+    final_dataframe, "coeff_and_cfu_linear_linear", x_log=False, y_log=False
+)
+plot_regression_v2(final_dataframe, "coeff_and_cfu_log_linear", x_log=True, y_log=False)
+plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_log", x_log=False, y_log=True)
+plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log", x_log=True, y_log=True)
 
 
 ############### CLASSIFICATION / DETECTION
