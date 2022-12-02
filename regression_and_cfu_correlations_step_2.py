@@ -338,22 +338,23 @@ def get_auc_sensitivity_specificity(cfu, y_tlf, present_cutoff=PRESENCE_CUTOFF):
     print("Precision: {:0.3f}".format(precision_score(y_true, y_pred)))
 
 
-############### REGRESSION
-# perform regression and add CFU to the final
-save_path_normed = "normed_dfs.pkl"
-save_path_interped = "interped_dfs.pkl"
-save_path_regressed = "regressed_df.pkl"
-final_dataframe = perform_regression(
-    save_path_normed, save_path_interped, save_path_regressed, overwrite=True
-)
-plot_regression_v2(
-    final_dataframe, "coeff_and_cfu_linear_linear", x_log=False, y_log=False
-)
-plot_regression_v2(final_dataframe, "coeff_and_cfu_log_linear", x_log=True, y_log=False)
-plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_log", x_log=False, y_log=True)
-plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log", x_log=True, y_log=True)
+if __name__ == "__main__":
+    ############### REGRESSION
+    # perform regression and add CFU to the final
+    save_path_normed = "normed_dfs.pkl"
+    save_path_interped = "interped_dfs.pkl"
+    save_path_regressed = "regressed_df.pkl"
+    final_dataframe = perform_regression(
+        save_path_normed, save_path_interped, save_path_regressed, overwrite=True
+    )
+    plot_regression_v2(
+        final_dataframe, "coeff_and_cfu_linear_linear", x_log=False, y_log=False
+    )
+    plot_regression_v2(final_dataframe, "coeff_and_cfu_log_linear", x_log=True, y_log=False)
+    plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_log", x_log=False, y_log=True)
+    plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log", x_log=True, y_log=True)
 
 
-############### CLASSIFICATION / DETECTION
-# check AUC score for detection (although the cutoff is arbitary now (median))
-# get_auc_sensitivity_specificity(final_dataframe["cfu"], final_dataframe["TLF"])
+    ############### CLASSIFICATION / DETECTION
+    # check AUC score for detection (although the cutoff is arbitary now (median))
+    # get_auc_sensitivity_specificity(final_dataframe["cfu"], final_dataframe["TLF"])

@@ -129,6 +129,24 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
             print(np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
         return dfx_scaled
 
+    def min_norm_df(dfx):
+        column_min = {}
+        dfx_scaled = pd.DataFrame.copy(dfx)
+        for column in dfx_scaled.columns:
+            # df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
+            # print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
+            # dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
+            #     np.max(df_nonzero_values) - np.min(df_nonzero_values)
+            # )
+            # dfx_scaled[column] = dfx_scaled[column] / np.max(df_nonzero_values)
+            # assert np.max(dfx_scaled[column]) == 1.0
+            # assert np.min(dfx_scaled[column]) == 0.0
+            y_min, y_max = get_min_max_within_range(dfx_scaled)
+            print(column, y_min, y_max)
+            dfx_scaled[column] = (dfx_scaled[column] - y_min) / (y_max - y_min)
+            print(np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
+        return dfx_scaled
+
     normed_signals = {
         "sites": smoothed_curves["sites"],
         "hlf": min_max_norm_df(smoothed_curves["hlf"]),
@@ -226,36 +244,37 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.close()
 
 
-# load data files
-data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
-print("total number of files: ", len(data_file_paths))
-df_signals = load_sites_data(data_file_paths)
-df_tlf, df_hlf = load_canonical_signals()
+# if __name__ == "__main__":
+     # load data files
+    data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
+    print("total number of files: ", len(data_file_paths))
+    df_signals = load_sites_data(data_file_paths)
+    df_tlf, df_hlf = load_canonical_signals()
 
 
-############### SMOOTHING
-# smooth data files
-save_path_smooth = "smoothed_dfs.pkl"
-smoothed_dfs = get_smoothed_curves(df_signals, df_tlf, df_hlf, save_path_smooth)
-plot_and_save_smoothed_curves(save_path_smooth)
+    ############### SMOOTHING
+    # smooth data files
+    save_path_smooth = "smoothed_dfs.pkl"
+    smoothed_dfs = get_smoothed_curves(df_signals, df_tlf, df_hlf, save_path_smooth)
+    plot_and_save_smoothed_curves(save_path_smooth)
 
 
-############### INTERPOLATING
-# normalize and save
-save_path_normed = "normed_dfs.pkl"
-normed_curves = get_normalized_curves(
-    save_path_smooth, save_path_normed, overwrite=True
-)
-plot_and_save_normed_curves(save_path_normed)
-
-# interoplate and save
-save_path_interped = "interped_dfs.pkl"
-if NORMALIZE:
-    interped_curves = get_interped_curves(
-        save_path_normed, save_path_interped, overwrite=True
+    ############### INTERPOLATING
+    # normalize and save
+    save_path_normed = "normed_dfs.pkl"
+    normed_curves = get_normalized_curves(
+        save_path_smooth, save_path_normed, overwrite=True
     )
-else:
-    interped_curves = get_interped_curves(
-        save_path_smooth, save_path_interped, overwrite=True
-    )
-plot_and_save_interped_curves(save_path_interped)
+    plot_and_save_normed_curves(save_path_normed)
+
+    # interoplate and save
+    save_path_interped = "interped_dfs.pkl"
+    if NORMALIZE:
+        interped_curves = get_interped_curves(
+            save_path_normed, save_path_interped, overwrite=True
+        )
+    else:
+        interped_curves = get_interped_curves(
+            save_path_smooth, save_path_interped, overwrite=True
+        )
+    plot_and_save_interped_curves(save_path_interped)
