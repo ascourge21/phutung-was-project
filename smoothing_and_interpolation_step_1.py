@@ -56,23 +56,11 @@ def load_sites_data(filelist):
 
 
 def load_canonical_signals():
-    def remove_out_of_bound_values(signal_df):
-        out_of_bound_indices = np.logical_or(
-            np.array(signal_df.index) > CURVES_INTERP_MAX,
-            np.array(signal_df.index) < CURVES_INTERP_MIN,
-        )
-        for column in signal_df.columns:
-            signal_df[column][out_of_bound_indices] = 0
-            assert np.alltrue(signal_df[column] >= 0)
-        return signal_df
-
     df1 = pd.read_csv("trypt.csv")
     df1 = df1.set_index("Wavelength (nm)")
-    # df1 = remove_out_of_bound_values(df1)
 
     df2 = pd.read_csv("hlf.txt", sep=" ")
     df2 = df2.set_index("wl")
-    # df2 = remove_out_of_bound_values(df2)
     return df1, df2
 
 
@@ -135,14 +123,6 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
             return y_min, y_max
 
         for column in dfx_scaled.columns:
-            # df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
-            # print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
-            # dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
-            #     np.max(df_nonzero_values) - np.min(df_nonzero_values)
-            # )
-            # dfx_scaled[column] = dfx_scaled[column] / np.max(df_nonzero_values)
-            # assert np.max(dfx_scaled[column]) == 1.0
-            # assert np.min(dfx_scaled[column]) == 0.0
             y_min, y_max = get_min_max_within_range(dfx_scaled)
             print(column, y_min, y_max)
             dfx_scaled[column] = (dfx_scaled[column] - y_min) / (y_max - y_min)
@@ -249,7 +229,6 @@ def plot_and_save_interped_curves(interped_curves_path):
 # load data files
 data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
 print("total number of files: ", len(data_file_paths))
-# df_signals = pd.concat(load_sites_data(data_file_paths), axis=1)
 df_signals = load_sites_data(data_file_paths)
 df_tlf, df_hlf = load_canonical_signals()
 

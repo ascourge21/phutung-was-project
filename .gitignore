@@ -1,5 +1,6 @@
-.vscode/
-.DS_Store/
+.vscode/*
+.DS_Store/*
 *.png
 *.pkl
 *.ipynb
+__pycache__/*
