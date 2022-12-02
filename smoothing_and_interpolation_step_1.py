@@ -17,8 +17,8 @@ import seaborn as sns
 
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
-CURVES_INTERP_MIN = 350
-CURVES_INTERP_MAX = 600
+CURVES_INTERP_MIN = 300
+CURVES_INTERP_MAX = 550
 
 # sns_settheme
 sns.set_theme()
@@ -68,11 +68,11 @@ def load_canonical_signals():
 
     df1 = pd.read_csv("trypt.csv")
     df1 = df1.set_index("Wavelength (nm)")
-    df1 = remove_out_of_bound_values(df1)
+    # df1 = remove_out_of_bound_values(df1)
 
     df2 = pd.read_csv("hlf.txt", sep=" ")
     df2 = df2.set_index("wl")
-    df2 = remove_out_of_bound_values(df2)
+    # df2 = remove_out_of_bound_values(df2)
     return df1, df2
 
 
@@ -83,14 +83,6 @@ def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=
 
     def smooth_data_frame(dfx):
         for column in dfx:
-            # smoothed_vals = np.zeros(dfx[column].shape)
-            # i = 0
-            # for x_position in dfx.index:
-            #     kernel = np.exp(-((dfx.index - x_position) ** 2) / (2 * sigma**2))
-            #     kernel = kernel / sum(kernel)
-            #     smoothed_vals[i] = sum(dfx[column] * kernel)
-            #     i += 1
-            # dfx[column] = smoothed_vals
             dfx[column] = scipy.ndimage.gaussian_filter1d(dfx[column], sigma=5, axis=0)
         return dfx
 
@@ -128,24 +120,37 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
 
     def min_max_norm_df(dfx):
         dfx_scaled = pd.DataFrame.copy(dfx)
+
+        def get_min_max_within_range(dfx):
+            y_min, y_max = np.inf, -np.inf
+            for x, y in zip(list(dfx.index), list(dfx[dfx.columns[0]])):
+                if x < CURVES_INTERP_MIN:
+                    continue
+                if x > CURVES_INTERP_MAX:
+                    continue
+                if y < y_min:
+                    y_min = y
+                if y > y_max:
+                    y_max = y
+            return y_min, y_max
+
         for column in dfx_scaled.columns:
-            df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
-            print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
-            dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
-                np.max(df_nonzero_values) - np.min(df_nonzero_values)
-            )
+            # df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
+            # print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
+            # dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
+            #     np.max(df_nonzero_values) - np.min(df_nonzero_values)
+            # )
+            # dfx_scaled[column] = dfx_scaled[column] / np.max(df_nonzero_values)
+            # assert np.max(dfx_scaled[column]) == 1.0
+            # assert np.min(dfx_scaled[column]) == 0.0
+            y_min, y_max = get_min_max_within_range(dfx_scaled)
+            print(column, y_min, y_max)
+            dfx_scaled[column] = (dfx_scaled[column] - y_min) / (y_max - y_min)
+            print(np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
         return dfx_scaled
 
-    # def min_norm_df(dfx):
-    #     column_min = {}
-    #     dfx_scaled = pd.DataFrame.copy(dfx)
-    #     for column in dfx_scaled.columns:
-    #         print('norming', column, np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
-    #         dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
-    #     return dfx_scaled
-
     normed_signals = {
-        "sites": smoothed_curves["sites"], # change to min_norm_df
+        "sites": smoothed_curves["sites"],
         "hlf": min_max_norm_df(smoothed_curves["hlf"]),
         "tlf": min_max_norm_df(smoothed_curves["tlf"]),
     }

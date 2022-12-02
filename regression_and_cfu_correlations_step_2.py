@@ -173,6 +173,99 @@ def plot_regression(fdf, logscale=True):
     plt.close()
 
 
+def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
+    x_label = "cfu"
+    y_label = "amplitude"
+    fdf = pd.DataFrame.copy(fdf)
+    if x_log:
+        fdf["cfu"] = fdf["cfu"].map(np.log10)
+        x_label = "log(cfu)"
+    if y_log:
+        fdf["a_TLF"] = fdf["a_TLF"].map(np.log10)
+        fdf["a_HLF"] = fdf["a_HLF"].map(np.log10)
+        y_label = "log(amplitude)"
+
+    title = ""
+    if x_log and y_log:
+        title = 'log-log-plot'
+    elif x_log and ~y_log:
+        title = 'log-linear-plot'
+    elif ~x_log and y_log:
+        title = 'linear-log-plot'
+    elif ~x_log and ~y_log:
+        title = 'linear-linear-plot'
+    else:
+        raise ValueError("need to be one of the above 4")
+
+    fig, ax = plt.subplots(figsize=(5, 3.8))
+    SMALL_SIZE = 8
+    MEDIUM_SIZE = 10
+    BIGGER_SIZE = 12
+    plt.rc("font", size=MEDIUM_SIZE)  # controls default text sizes
+    plt.rc("axes", titlesize=BIGGER_SIZE)  # fontsize of the axes title
+    plt.rc("axes", labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
+    plt.rc("font", weight="bold")
+    plt.rc("xtick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+    plt.rc("ytick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+    plt.rc("legend", fontsize=BIGGER_SIZE)  # legend fontsize
+    plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        fdf["cfu"], fdf["a_TLF"],
+    )
+    pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_TLF"])
+    spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_TLF"])
+    ax.scatter(fdf["cfu"], fdf["a_TLF"], c="green",
+        label="tlf, r-pea: {:0.2f}, r-spe: {:0.2f}".format(pearson_r.statistic, spearman_r.correlation),
+    )
+    ax.set_xlabel(x_label, fontsize=16)
+    ax.set_ylabel(y_label, fontsize=16)
+
+    z1 = np.polyfit(fdf["cfu"], fdf["a_TLF"], 1)
+    p1 = np.poly1d(z1)
+    ax.plot(fdf["cfu"], p1(fdf["cfu"]), "g")
+
+    print("tlf", pearson_r, spearman_r)
+    print(
+        "slope, intercept, r_value, p_value, std_err ",
+        slope,
+        intercept,
+        r_value,
+        p_value,
+        std_err,
+    )
+
+    # ax = ax.twinx()
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        fdf["cfu"], fdf["a_HLF"]
+    )
+    pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_HLF"])
+    spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_HLF"])
+    ax.scatter(fdf["cfu"], fdf["a_HLF"], c="red",
+        label="hlf, r-pea: {:0.2f}, r-spe: {:0.2f}".format(pearson_r.statistic, spearman_r.correlation),
+    )
+    # ax.set_ylabel(r"$a_{HLF}$", fontsize=16)
+
+    z2 = np.polyfit(fdf["cfu"], fdf["a_HLF"], 1)
+    p2 = np.poly1d(z2)
+    ax.plot(fdf["cfu"], p2(fdf["cfu"]), "r")
+    print("hlf", pearson_r, spearman_r)
+
+    print(
+        "slope, intercept, r_value, p_value, std_err ",
+        slope,
+        intercept,
+        r_value,
+        p_value,
+        std_err,
+    )
+
+    plt.title(title)
+    plt.legend(loc='lower right')
+    plt.savefig(im_save_path, dpi=100, bbox_inches="tight")
+    plt.close()
+
+
 def plot_and_save_roc_curves(score, fpr, tpr, title):
     lw = 2
     plt.figure(2)
@@ -242,8 +335,10 @@ save_path_regressed = "regressed_df.pkl"
 final_dataframe = perform_regression(
     save_path_normed, save_path_interped, save_path_regressed, overwrite=True
 )
-plot_regression(final_dataframe, logscale=True)
-
+plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_linear",  x_log=False, y_log=False)
+plot_regression_v2(final_dataframe, "coeff_and_cfu_log_linear",  x_log=True, y_log=False)
+plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_log",  x_log=False, y_log=True)
+plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log",  x_log=True, y_log=True)
 
 
 
