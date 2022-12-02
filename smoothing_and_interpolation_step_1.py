@@ -17,8 +17,8 @@ import seaborn as sns
 
 # change this to match your system paths, currently set to this folder only
 ROOT_FILE_PATH = "."
-CURVES_INTERP_MIN = 350
-CURVES_INTERP_MAX = 600
+CURVES_INTERP_MIN = 300
+CURVES_INTERP_MAX = 550
 
 # sns_settheme
 sns.set_theme()
@@ -133,20 +133,19 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         column_min = {}
         dfx_scaled = pd.DataFrame.copy(dfx)
         for column in dfx_scaled.columns:
-            df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
-            print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
-            dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
-                np.max(df_nonzero_values) - np.min(df_nonzero_values)
-            )
+            # df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
+            # print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
+            # dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
+            #     np.max(df_nonzero_values) - np.min(df_nonzero_values)
+            # )
+            # dfx_scaled[column] = dfx_scaled[column] / np.max(df_nonzero_values)
+            # assert np.max(dfx_scaled[column]) == 1.0
+            # assert np.min(dfx_scaled[column]) == 0.0
+            y_min, y_max = get_min_max_within_range(dfx_scaled)
+            print(column, y_min, y_max)
+            dfx_scaled[column] = (dfx_scaled[column] - y_min) / (y_max - y_min)
+            print(np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
         return dfx_scaled
-
-    # def min_norm_df(dfx):
-    #     column_min = {}
-    #     dfx_scaled = pd.DataFrame.copy(dfx)
-    #     for column in dfx_scaled.columns:
-    #         print('norming', column, np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
-    #         dfx_scaled[column] = dfx_scaled[column] - np.min(dfx_scaled[column])
-    #     return dfx_scaled
 
     normed_signals = {
         "sites": smoothed_curves["sites"],
