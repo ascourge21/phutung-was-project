@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import preprocessing
 from scipy import interpolate
+import scipy
 import os
 from matplotlib.pyplot import cm
 import seaborn as sns
@@ -30,37 +31,36 @@ def load_sites_data(filelist):
     Return a dataframe given a list of files containing data in the form of x y_i
     fileist (list): List of files
     """
-    df = []
+    all_sites_df = []
     for filename in filelist:
+        column_1_name = "wv_" + os.path.basename(filename).replace(".txt", "")
+        column_2_name = os.path.basename(filename).replace(".txt", "")
         dfx = pd.read_csv(
             filename,
             sep=" ",
-            names=["wv", os.path.basename(filename).replace(".txt", "")],
+            names=[column_1_name, column_2_name],
         )
-        dfx = dfx.set_index(dfx["wv"], drop=True)
-        dfx = dfx.drop(dfx.columns[0], axis=1)
-        df.append(dfx)
-    return df
+        all_sites_df.append(dfx)
+
+    wavelengths_df_1 = dfx[column_1_name]
+    wavelengths_df_1 = wavelengths_df_1.rename("wv")
+    combined_df_columns = []
+    combined_df_columns.append(wavelengths_df_1)
+    for df_i in all_sites_df:
+        assert list(df_i[df_i.columns[0]]) == list(wavelengths_df_1)
+        combined_df_columns.append(df_i[df_i.columns[1]])
+    combined_df = pd.concat(combined_df_columns, axis=1)
+    combined_df = combined_df.set_index(combined_df["wv"], drop=True)
+    combined_df = combined_df.drop("wv", axis=1)
+    return combined_df
 
 
 def load_canonical_signals():
-    def remove_out_of_bound_values(signal_df):
-        out_of_bound_indices = np.logical_or(
-            np.array(signal_df.index) > CURVES_INTERP_MAX,
-            np.array(signal_df.index) < CURVES_INTERP_MIN,
-        )
-        for column in signal_df.columns:
-            signal_df[column][out_of_bound_indices] = 0
-            assert np.alltrue(signal_df[column] >= 0)
-        return signal_df
-
     df1 = pd.read_csv("trypt.csv")
     df1 = df1.set_index("Wavelength (nm)")
-    df1 = remove_out_of_bound_values(df1)
 
     df2 = pd.read_csv("hlf.txt", sep=" ")
     df2 = df2.set_index("wl")
-    df2 = remove_out_of_bound_values(df2)
     return df1, df2
 
 
@@ -71,14 +71,7 @@ def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=
 
     def smooth_data_frame(dfx):
         for column in dfx:
-            smoothed_vals = np.zeros(dfx[column].shape)
-            i = 0
-            for x_position in dfx.index:
-                kernel = np.exp(-((dfx.index - x_position) ** 2) / (2 * sigma**2))
-                kernel = kernel / sum(kernel)
-                smoothed_vals[i] = sum(dfx[column] * kernel)
-                i += 1
-            dfx[column] = smoothed_vals
+            dfx[column] = scipy.ndimage.gaussian_filter1d(dfx[column], sigma=5, axis=0)
         return dfx
 
     sites_smoothed = smooth_data_frame(sites_df)
@@ -113,18 +106,33 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
     with open(smoothed_curves_path, "rb") as file:
         smoothed_curves = pickle.load(file)
 
-    def norm_df(dfx):
-        scaler = preprocessing.MinMaxScaler()
-        names = dfx.columns
-        d = scaler.fit_transform(dfx)
-        scaled_df = pd.DataFrame(d, columns=names)
-        scaled_df = scaled_df.set_index(dfx.index)
-        return scaled_df
+    def min_max_norm_df(dfx):
+        dfx_scaled = pd.DataFrame.copy(dfx)
+
+        def get_min_max_within_range(dfx):
+            y_min, y_max = np.inf, -np.inf
+            for x, y in zip(list(dfx.index), list(dfx[dfx.columns[0]])):
+                if x < CURVES_INTERP_MIN:
+                    continue
+                if x > CURVES_INTERP_MAX:
+                    continue
+                if y < y_min:
+                    y_min = y
+                if y > y_max:
+                    y_max = y
+            return y_min, y_max
+
+        for column in dfx_scaled.columns:
+            y_min, y_max = get_min_max_within_range(dfx_scaled)
+            print(column, y_min, y_max)
+            dfx_scaled[column] = (dfx_scaled[column] - y_min) / (y_max - y_min)
+            print(np.min(dfx_scaled[column]), np.max(dfx_scaled[column]))
+        return dfx_scaled
 
     normed_signals = {
-        "sites": norm_df(smoothed_curves["sites"]),
-        "hlf": norm_df(smoothed_curves["hlf"]),
-        "tlf": norm_df(smoothed_curves["tlf"]),
+        "sites": smoothed_curves["sites"],
+        "hlf": min_max_norm_df(smoothed_curves["hlf"]),
+        "tlf": min_max_norm_df(smoothed_curves["tlf"]),
     }
     with open(save_path, "wb") as file:
         pickle.dump(normed_signals, file)
@@ -200,11 +208,11 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.rc("legend", fontsize=SMALL_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    ax.text(350, 0.6, r"TLF", fontsize=12)
-    ax.text(470, 0.6, r"HLF", fontsize=12)
+    ax.text(CURVES_INTERP_MIN + 50, 0.6, r"TLF", fontsize=12)
+    ax.text(CURVES_INTERP_MAX - 80, 0.6, r"HLF", fontsize=12)
     for i in range(len(y)):
         c = next(color)
-        plt.plot(x, y[i], c=c, label=f"{i+1}")
+        plt.plot(x, y[i] / np.max(y[i]), c=c, label=f"{i+1}")
     plt.plot(x, y_tlf, "--", c="black")
     plt.fill_between(x, y_tlf, color="blue", alpha=0.20)
     plt.plot(x, y_hlf, "--", c="black")
@@ -221,7 +229,7 @@ def plot_and_save_interped_curves(interped_curves_path):
 # load data files
 data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
 print("total number of files: ", len(data_file_paths))
-df_signals = pd.concat(load_sites_data(data_file_paths), axis=1)
+df_signals = load_sites_data(data_file_paths)
 df_tlf, df_hlf = load_canonical_signals()
 
 
@@ -235,13 +243,19 @@ plot_and_save_smoothed_curves(save_path_smooth)
 ############### INTERPOLATING
 # normalize and save
 save_path_normed = "normed_dfs.pkl"
-normed_curves = get_normalized_curves(save_path_smooth, save_path_normed)
+normed_curves = get_normalized_curves(
+    save_path_smooth, save_path_normed, overwrite=True
+)
 plot_and_save_normed_curves(save_path_normed)
 
 # interoplate and save
 save_path_interped = "interped_dfs.pkl"
 if NORMALIZE:
-    interped_curves = get_interped_curves(save_path_normed, save_path_interped)
+    interped_curves = get_interped_curves(
+        save_path_normed, save_path_interped, overwrite=True
+    )
 else:
-    interped_curves = get_interped_curves(save_path_smooth, save_path_interped)
+    interped_curves = get_interped_curves(
+        save_path_smooth, save_path_interped, overwrite=True
+    )
 plot_and_save_interped_curves(save_path_interped)

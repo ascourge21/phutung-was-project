@@ -12,6 +12,7 @@ WHITEN = True
 
 sns.set_theme()
 
+
 def pca_and_plot_components():
     with open(raw_data_path, "rb") as file:
         normalized_raw_data = pickle.load(file)
@@ -59,8 +60,12 @@ def pca_and_plot_components():
     plt.rc("legend", fontsize=SMALL_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    pca_comp_1_norm = pca.components_[0] / np.max(pca.components_[0])
-    pca_comp_2_norm = pca.components_[1] / np.max(pca.components_[1])
+    pca_comp_1_norm = (pca.components_[0] - np.min(pca.components_[0])) / (
+        np.max(pca.components_[0]) - np.min(pca.components_[0])
+    )
+    pca_comp_2_norm = (pca.components_[1] - np.min(pca.components_[1])) / (
+        np.max(pca.components_[1]) - np.min(pca.components_[0])
+    )
     draw_inds = np.arange(0, len(normalized_raw_data["x"]), 5)
     plot_x = normalized_raw_data["x"][draw_inds]
     plt.plot(plot_x, pca_comp_1_norm[draw_inds], "gx", label="PC 1")
@@ -70,14 +75,18 @@ def pca_and_plot_components():
         normalized_raw_data["y_hlf"][draw_inds],
         "r--",
         linewidth=2,
-        label="HLF, r1={:0.2f}, r2={:0.2f}".format(r_comp_0_hlf.statistic, r_comp_1_hlf.statistic),
+        label="HLF, r1={:0.2f}, r2={:0.2f}".format(
+            r_comp_0_hlf.statistic, r_comp_1_hlf.statistic
+        ),
     )
     plt.plot(
         plot_x,
         normalized_raw_data["y_tlf"][draw_inds],
         "b-.",
         linewidth=2,
-        label="TLF, r1={:0.2f}, r2={:0.2f}".format(r_comp_0_tlf.statistic, r_comp_1_tlf.statistic),
+        label="TLF, r1={:0.2f}, r2={:0.2f}".format(
+            r_comp_0_tlf.statistic, r_comp_1_tlf.statistic
+        ),
     )
     plt.xlabel("Wavelength (nm)", fontsize=14)
     plt.ylabel("Normalized Amplitude", fontsize=14)
