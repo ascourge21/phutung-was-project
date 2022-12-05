@@ -44,7 +44,9 @@ def perform_regression(
     y_ones = np.ones(y[2].shape)
 
     # Desired coefficient matrix for LSF. First columns is of 1
-    coeff_matrix = np.array([y_ones, y_tlf, y_hlf]).transpose()
+    y_tlf_hlf = np.multiply(y_tlf, y_hlf)
+    y_tlf_hlf = (y_tlf_hlf - y_tlf_hlf.min()) / (y_tlf_hlf.max() - y_tlf_hlf.min())
+    coeff_matrix = np.array([y_ones, y_tlf, y_hlf, y_tlf_hlf]).transpose()
 
     k = []
     for i in range(len(y)):
@@ -56,7 +58,7 @@ def perform_regression(
         print(x[0])
 
     c_array = c_array.reshape(len(y), coeff_matrix.shape[1])
-    c_df = pd.DataFrame(data=c_array, columns=["c", "a_TLF", "a_HLF"])
+    c_df = pd.DataFrame(data=c_array, columns=["c", "a_TLF", "a_HLF", "a_TLF_HLF"])
     c_df["location"] = locations
 
     # Comparision with the CFU/ plate count
@@ -183,6 +185,7 @@ def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
     if y_log:
         fdf["a_TLF"] = fdf["a_TLF"].map(np.log10)
         fdf["a_HLF"] = fdf["a_HLF"].map(np.log10)
+        fdf["a_TLF_HLF"] = fdf["a_TLF_HLF"].map(np.log10)
         y_label = "log(amplitude)"
 
     title = ""
@@ -277,65 +280,144 @@ def plot_regression_v2(fdf, im_save_path, x_log=False, y_log=False):
     plt.close()
 
 
-def plot_and_save_roc_curves(score, fpr, tpr, title):
-    lw = 2
-    plt.figure(2)
-    plt.plot(fpr, tpr, label="ROC curve (area = %0.2f)" % score)
-    plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.title(title)
-    plt.legend(loc="lower right")
-    with open("detection_roc_auc.png", "wb") as file:
-        plt.savefig(file)
-    plt.close()
+def plot_regression_v3(fdf, im_save_path, x_log=False, y_log=False):
+    x_label = "cfu"
+    fdf = pd.DataFrame.copy(fdf)
+    if x_log:
+        fdf["cfu"] = fdf["cfu"].map(np.log10)
+        x_label = "log(cfu)"
+    if y_log:
+        fdf["a_TLF"] = fdf["a_TLF"].map(np.log10)
+        fdf["a_HLF"] = fdf["a_HLF"].map(np.log10)
+        fdf["a_TLF_HLF"] = fdf["a_TLF_HLF"].map(np.log10)
 
+    title = ""
+    if x_log and y_log:
+        title = "log-log-plot"
+    elif x_log and ~y_log:
+        title = "log-linear-plot"
+    elif ~x_log and y_log:
+        title = "linear-log-plot"
+    elif ~x_log and ~y_log:
+        title = "linear-linear-plot"
+    else:
+        raise ValueError("need to be one of the above 4")
 
-def get_auc_sensitivity_specificity(cfu, y_tlf, present_cutoff=PRESENCE_CUTOFF):
-    def get_y_true_y_pred(cfu_y, tlf_y, cfu_cutoff, tlf_cutoff, for_auc=False):
-        y_true, y_pred = [], []
-        for cfu_i, y_tlf_i in zip(cfu, y_tlf):
-            y_true.append(cfu_i > cfu_cutoff)
-            if for_auc:
-                y_pred.append(y_tlf_i)
-            else:
-                y_pred.append(y_tlf_i > tlf_cutoff)
-        return y_true, y_pred
+    fig, ax = plt.subplots(1, 3, figsize=(18, 4))
+    SMALL_SIZE = 8
+    MEDIUM_SIZE = 10
+    BIGGER_SIZE = 12
+    plt.rc("font", size=MEDIUM_SIZE)  # controls default text sizes
+    plt.rc("axes", titlesize=BIGGER_SIZE)  # fontsize of the axes title
+    plt.rc("axes", labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
+    plt.rc("font", weight="bold")
+    plt.rc("xtick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+    plt.rc("ytick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+    plt.rc("legend", fontsize=BIGGER_SIZE)  # legend fontsize
+    plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    y_true, y_pred = get_y_true_y_pred(cfu, y_tlf, present_cutoff, None, for_auc=True)
-    auc_score = roc_auc_score(y_true, y_pred)
-    fpr, tpr, _ = roc_curve(y_true, y_pred)
-    print("AUC score at cutoff: {}, is: {:0.3f}".format(present_cutoff, auc_score))
-    plot_and_save_roc_curves(
-        auc_score,
-        fpr,
-        tpr,
-        "ROC-AUC for detection at CFU cutoff of:  %d" % present_cutoff,
+    ###################### TLF
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        fdf["cfu"],
+        fdf["a_TLF"],
+    )
+    pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_TLF"])
+    spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_TLF"])
+    ax[0].scatter(
+        fdf["cfu"],
+        fdf["a_TLF"],
+        c="green",
+        label="r-spe: {:0.2f}, p-val: {:0.2f}".format(
+            spearman_r.correlation, spearman_r.pvalue
+        ),
+    )
+    ax[0].set_xlabel(x_label, fontsize=16)
+    ax[0].set_ylabel("$a_T$", fontsize=16)
+
+    z1 = np.polyfit(fdf["cfu"], fdf["a_TLF"], 1)
+    p1 = np.poly1d(z1)
+    ax[0].plot(fdf["cfu"], p1(fdf["cfu"]), "g")
+    ax[0].legend(loc="lower right")
+
+    print("tlf", pearson_r, spearman_r)
+    print(
+        "slope, intercept, r_value, p_value, std_err ",
+        slope,
+        intercept,
+        r_value,
+        p_value,
+        std_err,
     )
 
-    best_cutoff, best_f1 = None, -1
-    for tlf_cutoff in np.linspace(np.min(y_tlf), np.max(y_tlf), 20):
-        y_true, y_pred = get_y_true_y_pred(
-            cfu, y_tlf, present_cutoff, tlf_cutoff, for_auc=False
-        )
-        f1 = f1_score(y_true, y_pred)
-        if f1 > best_f1:
-            best_cutoff = tlf_cutoff
-            best_f1 = f1
-
-    y_true, y_pred = get_y_true_y_pred(
-        cfu, y_tlf, present_cutoff, best_cutoff, for_auc=False
+    ###################### HLF
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        fdf["cfu"], fdf["a_HLF"]
     )
+    pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_HLF"])
+    spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_HLF"])
+    ax[1].scatter(
+        fdf["cfu"],
+        fdf["a_HLF"],
+        c="red",
+        label="r-spe: {:0.2f}, p-val: {:0.2f}".format(
+            spearman_r.correlation, spearman_r.pvalue
+        ),
+    )
+    # ax[1].set_ylabel(r"$a_{HLF}$", fontsize=16)
+
+    z2 = np.polyfit(fdf["cfu"], fdf["a_HLF"], 1)
+    p2 = np.poly1d(z2)
+    ax[1].plot(fdf["cfu"], p2(fdf["cfu"]), "r")
+    print("hlf", pearson_r, spearman_r)
+    ax[1].legend(loc="lower right")
+    ax[1].set_xlabel(x_label, fontsize=16)
+    ax[1].set_ylabel("$a_H$", fontsize=16)
 
     print(
-        "cfu cutoff: {}, best tlf cutoff: {:0.3f}".format(present_cutoff, best_cutoff)
+        "slope, intercept, r_value, p_value, std_err ",
+        slope,
+        intercept,
+        r_value,
+        p_value,
+        std_err,
     )
-    print("F1-score: {:0.3f}".format(f1_score(y_true, y_pred)))
-    print("Sensitivity: {:0.3f}".format(recall_score(y_true, y_pred)))
-    print("Specificity: {:0.3f}".format(f1_score(~np.array(y_true), ~np.array(y_pred))))
-    print("Precision: {:0.3f}".format(precision_score(y_true, y_pred)))
+
+    ###################### TLF * HLF
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        fdf["cfu"], fdf["a_TLF_HLF"]
+    )
+    pearson_r = stats.pearsonr(fdf["cfu"], fdf["a_TLF_HLF"])
+    spearman_r = stats.spearmanr(fdf["cfu"], fdf["a_TLF_HLF"])
+    ax[2].scatter(
+        fdf["cfu"],
+        fdf["a_TLF_HLF"],
+        c="red",
+        label="r-spe: {:0.2f}, p-val: {:0.2f}".format(
+            spearman_r.correlation, spearman_r.pvalue
+        ),
+    )
+    # ax[2].set_ylabel(r"$a_{HLF}$", fontsize=16)
+
+    z2 = np.polyfit(fdf["cfu"], fdf["a_TLF_HLF"], 1)
+    p2 = np.poly1d(z2)
+    ax[2].plot(fdf["cfu"], p2(fdf["cfu"]), "r")
+    print("tlf * hlf", pearson_r, spearman_r)
+    ax[2].legend(loc="lower right")
+    ax[2].set_xlabel(x_label, fontsize=16)
+    ax[2].set_ylabel("$a_{TH}$", fontsize=16)
+
+    print(
+        "slope, intercept, r_value, p_value, std_err ",
+        slope,
+        intercept,
+        r_value,
+        p_value,
+        std_err,
+    )
+
+    # plt.title(title)
+    plt.savefig(im_save_path, dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 if __name__ == "__main__":
@@ -347,12 +429,20 @@ if __name__ == "__main__":
     final_dataframe = perform_regression(
         save_path_normed, save_path_interped, save_path_regressed, overwrite=True
     )
-    plot_regression_v2(
+    # plot_regression_v2(
+    #     final_dataframe, "coeff_and_cfu_linear_linear", x_log=False, y_log=False
+    # )
+    # plot_regression_v2(
+    #     final_dataframe, "coeff_and_cfu_log_linear", x_log=True, y_log=False
+    # )
+    # plot_regression_v2(
+    #     final_dataframe, "coeff_and_cfu_linear_log", x_log=False, y_log=True
+    # )
+    # plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log", x_log=True, y_log=True)
+
+    plot_regression_v3(
         final_dataframe, "coeff_and_cfu_linear_linear", x_log=False, y_log=False
     )
-    plot_regression_v2(final_dataframe, "coeff_and_cfu_log_linear", x_log=True, y_log=False)
-    plot_regression_v2(final_dataframe, "coeff_and_cfu_linear_log", x_log=False, y_log=True)
-    plot_regression_v2(final_dataframe, "coeff_and_cfu_log_log", x_log=True, y_log=True)
 
 
     ############### CLASSIFICATION / DETECTION

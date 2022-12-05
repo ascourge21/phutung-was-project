@@ -243,21 +243,18 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.savefig("interped_curves.png", bbox_inches="tight", dpi=150)
     plt.close()
 
-
-# if __name__ == "__main__":
-     # load data files
+    # if __name__ == "__main__":
+    # load data files
     data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
     print("total number of files: ", len(data_file_paths))
     df_signals = load_sites_data(data_file_paths)
     df_tlf, df_hlf = load_canonical_signals()
-
 
     ############### SMOOTHING
     # smooth data files
     save_path_smooth = "smoothed_dfs.pkl"
     smoothed_dfs = get_smoothed_curves(df_signals, df_tlf, df_hlf, save_path_smooth)
     plot_and_save_smoothed_curves(save_path_smooth)
-
 
     ############### INTERPOLATING
     # normalize and save
