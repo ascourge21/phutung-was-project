@@ -115,8 +115,10 @@ def pca_and_plot_components_v2():
     )
 
     # get the factor term
-    y_tlf_hlf = np.multiply(normalized_raw_data["y_tlf"], normalized_raw_data["y_hlf"])
-    y_tlf_hlf = (y_tlf_hlf - y_tlf_hlf.min()) / (y_tlf_hlf.max() - y_tlf_hlf.min())
+    # y_tlf_hlf = np.multiply(normalized_raw_data["y_tlf"], normalized_raw_data["y_hlf"])
+    # y_tlf_hlf = (y_tlf_hlf - y_tlf_hlf.min()) / (y_tlf_hlf.max() - y_tlf_hlf.min())
+
+    y_tlf_hlf = normalized_raw_data["y_ecoli"]
 
     # print correlations
     pc0 = -pca.components_[0]
@@ -203,7 +205,7 @@ def pca_and_plot_components_v2():
         y_tlf_hlf[draw_inds],
         "g",
         linewidth=1.5,
-        label="tlf * hlf, r={:0.2f}".format(r_comp_0_tlf_hlf.statistic),
+        label="ecoli, r={:0.2f}".format(r_comp_0_tlf_hlf.statistic),
     )
     ax[0].set_xlabel("Wavelength (nm)", fontsize=14)
     ax[0].set_ylabel("Normalized Amplitude", fontsize=14)
@@ -231,7 +233,7 @@ def pca_and_plot_components_v2():
         y_tlf_hlf[draw_inds],
         "g",
         linewidth=1.5,
-        label="tlf * hlf, r={:0.2f}".format(r_comp_1_tlf_hlf.statistic),
+        label="ecoli, r={:0.2f}".format(r_comp_1_tlf_hlf.statistic),
     )
     ax[1].set_xlabel("Wavelength (nm)", fontsize=14)
     # ax[1].set_xticks(fontsize=14)

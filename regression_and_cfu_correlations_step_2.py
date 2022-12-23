@@ -40,13 +40,15 @@ def perform_regression(
     y = interped_curves["y"]
     y_tlf = interped_curves["y_tlf"]
     y_hlf = interped_curves["y_hlf"]
+    y_ecoli = interped_curves["y_ecoli"]
 
     y_ones = np.ones(y[2].shape)
 
     # Desired coefficient matrix for LSF. First columns is of 1
     y_tlf_hlf = np.multiply(y_tlf, y_hlf)
     y_tlf_hlf = (y_tlf_hlf - y_tlf_hlf.min()) / (y_tlf_hlf.max() - y_tlf_hlf.min())
-    coeff_matrix = np.array([y_ones, y_tlf, y_hlf, y_tlf_hlf]).transpose()
+
+    coeff_matrix = np.array([y_ones, y_tlf, y_hlf, y_ecoli]).transpose()
 
     k = []
     for i in range(len(y)):
@@ -404,7 +406,7 @@ def plot_regression_v3(fdf, im_save_path, x_log=False, y_log=False):
     print("tlf * hlf", pearson_r, spearman_r)
     ax[2].legend(loc="lower right")
     ax[2].set_xlabel(x_label, fontsize=16)
-    ax[2].set_ylabel("$a_{TH}$", fontsize=16)
+    ax[2].set_ylabel("$a_{ecoli}$", fontsize=16)
 
     print(
         "slope, intercept, r_value, p_value, std_err ",

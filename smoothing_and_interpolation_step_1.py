@@ -23,8 +23,6 @@ CURVES_INTERP_MAX = 550
 # sns_settheme
 sns.set_theme()
 
-NORMALIZE = True
-
 # function definitions
 def load_sites_data(filelist):
     """
@@ -61,10 +59,13 @@ def load_canonical_signals():
 
     df2 = pd.read_csv("hlf.txt", sep=" ")
     df2 = df2.set_index("wl")
-    return df1, df2
+
+    df3 = pd.read_csv("e_coli_spectrum.csv")
+    df3 = df3.set_index("Wavelength (nm)")
+    return df1, df2, df3
 
 
-def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=False):
+def get_smoothed_curves(sites_df, tlf_df, hlf_df, ecoli_df, save_path, sigma=5, overwrite=False):
     if not overwrite and os.path.exists(save_path):
         with open(save_path, "rb") as file:
             return pickle.load(file)
@@ -77,10 +78,12 @@ def get_smoothed_curves(sites_df, tlf_df, hlf_df, save_path, sigma=5, overwrite=
     sites_smoothed = smooth_data_frame(sites_df)
     tlf_smoothed = smooth_data_frame(tlf_df)
     hlf_smoothed = smooth_data_frame(hlf_df)
+    ecoli_smoothed = smooth_data_frame(ecoli_df)
     result = {
         "sites": sites_smoothed,
         "hlf": hlf_smoothed,
         "tlf": tlf_smoothed,
+        "ecoli": ecoli_smoothed,
     }
     with open(save_path, "wb") as file:
         pickle.dump(result, file)
@@ -94,7 +97,8 @@ def plot_and_save_smoothed_curves(smooth_curves_path):
     curves["sites"].plot(ax=plt.gca())
     curves["hlf"].plot(ax=plt.gca())
     curves["tlf"].plot(ax=plt.gca())
-    plt.savefig("smoothed_curves.png")
+    curves["ecoli"].plot(ax=plt.gca())
+    plt.savefig("smoothed_curves.png", bbox_inches="tight")
     plt.close()
 
 
@@ -133,14 +137,6 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         column_min = {}
         dfx_scaled = pd.DataFrame.copy(dfx)
         for column in dfx_scaled.columns:
-            # df_nonzero_values = dfx_scaled[column][dfx_scaled[column] > 0.0]
-            # print(column, np.max(df_nonzero_values), np.min(df_nonzero_values))
-            # dfx_scaled[column] = (dfx_scaled[column] - np.min(df_nonzero_values)) / (
-            #     np.max(df_nonzero_values) - np.min(df_nonzero_values)
-            # )
-            # dfx_scaled[column] = dfx_scaled[column] / np.max(df_nonzero_values)
-            # assert np.max(dfx_scaled[column]) == 1.0
-            # assert np.min(dfx_scaled[column]) == 0.0
             y_min, y_max = get_min_max_within_range(dfx_scaled)
             print(column, y_min, y_max)
             dfx_scaled[column] = (dfx_scaled[column] - y_min) / (y_max - y_min)
@@ -151,6 +147,7 @@ def get_normalized_curves(smoothed_curves_path, save_path, overwrite=False):
         "sites": smoothed_curves["sites"],
         "hlf": min_max_norm_df(smoothed_curves["hlf"]),
         "tlf": min_max_norm_df(smoothed_curves["tlf"]),
+        "ecoli": min_max_norm_df(smoothed_curves["ecoli"]),
     }
     with open(save_path, "wb") as file:
         pickle.dump(normed_signals, file)
@@ -164,7 +161,8 @@ def plot_and_save_normed_curves(norm_curves_path):
     curves["sites"].plot(ax=plt.gca())
     curves["hlf"].plot(ax=plt.gca())
     curves["tlf"].plot(ax=plt.gca())
-    plt.savefig("normed_curves.png")
+    curves["ecoli"].plot(ax=plt.gca())
+    plt.savefig("normed_curves.png", bbox_inches="tight")
     plt.close()
 
 
@@ -191,11 +189,16 @@ def get_interped_curves(normed_curves_path, save_path, overwrite=False):
         smoothed_curves["hlf"].index, smoothed_curves["hlf"]["hlf"]
     )(x)
 
+    y_ecoli = interpolate.interp1d(
+        smoothed_curves["ecoli"].index, smoothed_curves["ecoli"]["ecoli"]
+    )(x)
+
     interped_signals = {
         "x": x,
         "y": y,
         "y_tlf": y_tlf,
         "y_hlf": y_hlf,
+        "y_ecoli": y_ecoli,
     }
 
     with open(save_path, "wb") as file:
@@ -210,6 +213,7 @@ def plot_and_save_interped_curves(interped_curves_path):
     y = curves["y"]
     y_tlf = curves["y_tlf"]
     y_hlf = curves["y_hlf"]
+    y_ecoli = curves["y_ecoli"]
     fig, ax = plt.subplots(figsize=(4, 3))
 
     SMALL_SIZE = 6
@@ -235,6 +239,8 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.fill_between(x, y_tlf, color="blue", alpha=0.20)
     plt.plot(x, y_hlf, "--", c="black")
     plt.fill_between(x, y_hlf, color="magenta", alpha=0.20)
+    plt.plot(x, y_ecoli, "--", c="black")
+    plt.fill_between(x, y_ecoli, color="green", alpha=0.20)
     plt.xlabel("Wavelength (nm)", fontsize=14)
     plt.ylabel("Normalized Amplitude", fontsize=14)
     plt.xticks(fontsize=14)
@@ -243,20 +249,20 @@ def plot_and_save_interped_curves(interped_curves_path):
     plt.savefig("interped_curves.png", bbox_inches="tight", dpi=150)
     plt.close()
 
-    # if __name__ == "__main__":
+if __name__ == "__main__":
     # load data files
     data_file_paths = glob.glob(os.path.join(ROOT_FILE_PATH, "17loc/*.txt"))  # ./17loc
     print("total number of files: ", len(data_file_paths))
     df_signals = load_sites_data(data_file_paths)
-    df_tlf, df_hlf = load_canonical_signals()
+    df_tlf, df_hlf, df_ecoli = load_canonical_signals()
 
     ############### SMOOTHING
     # smooth data files
     save_path_smooth = "smoothed_dfs.pkl"
-    smoothed_dfs = get_smoothed_curves(df_signals, df_tlf, df_hlf, save_path_smooth)
+    smoothed_dfs = get_smoothed_curves(df_signals, df_tlf, df_hlf, df_ecoli, save_path_smooth)
     plot_and_save_smoothed_curves(save_path_smooth)
 
-    ############### INTERPOLATING
+    # ############### INTERPOLATING
     # normalize and save
     save_path_normed = "normed_dfs.pkl"
     normed_curves = get_normalized_curves(
@@ -266,12 +272,7 @@ def plot_and_save_interped_curves(interped_curves_path):
 
     # interoplate and save
     save_path_interped = "interped_dfs.pkl"
-    if NORMALIZE:
-        interped_curves = get_interped_curves(
-            save_path_normed, save_path_interped, overwrite=True
-        )
-    else:
-        interped_curves = get_interped_curves(
-            save_path_smooth, save_path_interped, overwrite=True
-        )
+    interped_curves = get_interped_curves(
+        save_path_normed, save_path_interped, overwrite=True
+    )
     plot_and_save_interped_curves(save_path_interped)

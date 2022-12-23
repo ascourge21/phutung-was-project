@@ -4,3 +4,5 @@
 *.pkl
 *.ipynb
 __pycache__/*
+papers/*
+17loc/*
