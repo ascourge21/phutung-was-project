@@ -1,8 +1,9 @@
 .vscode/*
 .DS_Store/*
+.DS_Store
 *.png
 *.pkl
 *.ipynb
 __pycache__/*
 papers/*
-17loc/*
+.ipynb_checkpoints/*

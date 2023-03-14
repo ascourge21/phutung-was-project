@@ -1,0 +1,130 @@
+ID	DirL1	DirL2	Fname	CFU/100ml	Eqv TLF (PMT)
+LGW18	Lab Grade Water_Spectra	2021_8_6_CommercialLabGradeWater	HPLC grade Water_Qualigen_300s.txt	0.1	1.2
+LGW19	Lab Grade Water_Spectra	2021_8_6_CommercialLabGradeWater	Distilled Water_Merck_300s.txt	0.1	2.7
+LGW21	Lab Grade Water_Spectra	2021_7_29_LabGradeWater	MilliQ Water_300s.txt	0.1	0.9
+LGW22	Lab Grade Water_Spectra	2021_7_29_LabGradeWater	PCR grade water_300s.txt	0.1	0.9
+LGW23	Lab Grade Water_Spectra	2021_7_29_LabGradeWater	HPLC grade water_300s.txt	0.1	1.0
+BW25	Bottled Water	2021.12.06_Bottled Water	AquaRius_Spectra_300s.txt	0.1	6.5
+BW33	Bottled Water	2021_8_3_BottledWater	Rasuwa_Sample_7_300s.txt	0.1	1.3
+BW34	Bottled Water	2021_8_3_BottledWater	AquaHundred_Sample_6_300s.txt	0.1	0.9
+BW35	Bottled Water	2021_8_3_BottledWater	AquaAnna_Sample_3_300s.txt	0.1	1.9
+BW36	Bottled Water	2021_8_3_BottledWater	AquaRius_Sample_4_300s.txt	0.1	6.5
+BW37	Bottled Water	2021_8_3_BottledWater	AquaArticBlue_Sample_2_300s.txt	0.1	1.3
+BW38	Bottled Water	2021_8_3_BottledWater	Aquafina_Sample_5_300s.txt	0.1	1.0
+BW39	Bottled Water	2021_8_3_BottledWater	AquaParadise_Sample_8_300s.txt	0.1	0.9
+BW40	Bottled Water	2021_8_3_BottledWater	GoodDay_Sample_1_300s.txt	0.1	0.6
+BW41	Bottled Water	2021_8_3_BottledWater	PCR grade Water_300s.txt	0.1	0.9
+BW42	Bottled Water	2021_8_3_BottledWater	Aaku_Sample_9_300s.txt	0.1	1.4
+BW43	Bottled Water	2021.11.18_Bottled Water	VolcanDW_Spectra_300s.txt	0.1	0.9
+BW44	Bottled Water	2021.11.18_Bottled Water	AquaHill_Spectra_300s.txt	0.1	0.7
+BW45	Bottled Water	2021.11.18_Bottled Water	HamroPrasoditPani_Spectra_300s.txt	0.1	2.0
+BW46	Bottled Water	2021.11.18_Bottled Water	AquaPure_Spectra_300s.txt	0.1	2.2
+BW47	Bottled Water	2021.11.18_Bottled Water	AquaHimShikhar_Spectra_300s.txt	0.1	0.6
+BW48	Bottled Water	2021.11.18_Bottled Water	YechuLa_Spectra_300s.txt	0.1	1.0
+BW49	Bottled Water	2021.11.18_Bottled Water	AquaBlueLite_Spectra_300s.txt	0.1	0.4
+BW51	Bottled Water	2021.11.16_BottledWater	Believe_Spectra_300s.txt	0.1	1.8
+BW52	Bottled Water	2021.11.16_BottledWater	SangrillaSprings_Spectra_300s.txt	0.1	18.8
+BW53	Bottled Water	2021.11.16_BottledWater	BLUESspring_Spectra_300s.txt	0.1	0.5
+BW54	Bottled Water	2021.11.16_BottledWater	AquaBlueLite_300s.txt	0.1	0.4
+BW55	Bottled Water	2021.11.16_BottledWater	REFRESH_Spectra_300s.txt	0.1	0.9
+BW56	Bottled Water	2021.11.16_BottledWater	EverestDW_Spectra_300s.txt	1.0	4.3
+BW57	Bottled Water	2021.11.16_BottledWater	FresH2O_Spectra_300s.txt	0.1	1.3
+WSSH58	Water Source In Hill_Spectra	2021_9_15_RiverSource	BaudesworRiverSource_Spectra_300s.txt	170.0	4.3
+WSSH59	Water Source In Hill_Spectra	2021_9_15_RiverSource	Prashant_JarWater_Spectra_300s.txt	459.0	3.0
+WSSH62	Water Source In Hill_Spectra	2021_9_15_RiverSource	Dipesh_HouseHold_Spectra_50s.txt	7.0	63.9
+WSSH63	Water Source In Hill_Spectra	2021_9_15_RiverSource	Jhor_Tap_3_Spectra_300s.txt	99.0	3.4
+WSSH65	Water Source In Hill_Spectra	2021_9_15_RiverSource	Sangla_Tap_2_Spectra_300s.txt	540.0	4.2
+WSSH66	Water Source In Hill_Spectra	2021_9_15_RiverSource	Tokha_Tap_5_Spectra_300s.txt	415.0	7.8
+WSSH68	Water Source In Hill_Spectra	2021_9_15_RiverSource	Tokha_Tap_4_Spectra_300s.txt	587.0	7.6
+WSSH69	Water Source In Hill_Spectra	2021_9_15_RiverSource	Tokha_Tap_6_Spectra_300s.txt	556.0	7.6
+WSSH71	Water Source In Hill_Spectra	2021_7_29_WaterSourceInHill	Syuchatar_Sample_4_300s.txt	43.0	1.8
+WSSH72	Water Source In Hill_Spectra	2021_7_29_WaterSourceInHill	Syuchatar_Sample_2_300s.txt	50.0	2.3
+WSSH73	Water Source In Hill_Spectra	2021_7_29_WaterSourceInHill	Syuchatar_Sample_5_300s.txt	207.0	3.5
+WSSH75	Water Source In Hill_Spectra	2021_7_29_WaterSourceInHill	Syuchatar_Sample_1_300s.txt	16.0	2.8
+WSSH77	Water Source In Hill_Spectra	2021_7_29_WaterSourceInHill	Syuchatar_Sample_3_300s.txt	1.0	1.5
+WSSH81	Water Source In Hill_Spectra	2021_9_13_RiverSource	GodawariTap4_Spectra_300s.txt	5.0	1.1
+WSSH82	Water Source In Hill_Spectra	2021_9_13_RiverSource	GodawariTap3_Spectra_300s.txt	95.0	1.5
+WSSH83	Water Source In Hill_Spectra	2021_9_13_RiverSource	GodawariTap2_Spectra_300s.txt	4.0	1.0
+WSSH85	Water Source In Hill_Spectra	2021_9_13_RiverSource	Jarwater_DS_Spectra_300s.txt	3.0	2.3
+WSSH86	Water Source In Hill_Spectra	2021_9_13_RiverSource	Jarwater_Hem2_Spectra_300s.txt	110.0	1.6
+WSSH87	Water Source In Hill_Spectra	2021_9_13_RiverSource	Jarwater_Hem1_Spectra_300s.txt	500.0	8.3
+WSSH88	Water Source In Hill_Spectra	2021_9_13_RiverSource	GodawariTap1_Spectra_300s.txt	5.0	1.3
+WSSH89	Water Source In Hill_Spectra	2021_9_13_RiverSource	GodawariTap5_Spectra_300s.txt	335.0	3.7
+WSSH90	Water Source In Hill_Spectra	2021_9_19_Riversource	Bishnudwar3_300s.txt	23.0	4.8
+WSSH91	Water Source In Hill_Spectra	2021_9_19_Riversource	Bishnudwar4_300s.txt	39.0	5.7
+WSSH92	Water Source In Hill_Spectra	2021_9_19_Riversource	Bishnudwar2_300s.txt	70.0	6.8
+WSSH93	Water Source In Hill_Spectra	2021_9_19_Riversource	Bishnudwar1_300s.txt	21.0	1.7
+WSSH95	Water Source In Hill_Spectra	2021_8_10_WaterSourceHills	Syuchatar_Bhandari Dharo_Sample_1_300s.txt	78.0	1.1
+WSSH96	Water Source In Hill_Spectra	2021_8_10_WaterSourceHills	Syuchatar_GotamthokChowk_Sample_4_300s.txt	500.0	1.1
+WSSH97	Water Source In Hill_Spectra	2021_8_10_WaterSourceHills	Syuchatar_HanumanGaire II_Sample_3_300s.txt	500.0	8.2
+WSSH99	Water Source In Hill_Spectra	2021_8_10_WaterSourceHills	Syuchatar_HanumanGaire I_Sample_2_300s.txt	130.0	1.2
+WSSH100	Water Source In Hill_Spectra	2021_8_10_WaterSourceHills	Syuchatar_GotamthokMahadevthan_Sample_5_300s.txt	86.0	1.0
+WSSH101	Water Source In Hill_Spectra	2021.12.01_SyuchatarRiver	Padeli_Dhara_300s.txt	20.0	2.0
+WSSH102	Water Source In Hill_Spectra	2021.12.01_SyuchatarRiver	GumbaDhara_300s.txt	500.0	3.3
+WSSH103	Water Source In Hill_Spectra	2021.12.01_SyuchatarRiver	ChisapaniDhara_300s.txt	225.0	2.4
+WSSH104	Water Source In Hill_Spectra	2021.12.01_SyuchatarRiver	Bhandari_Dhara_300s.txt	9.0	1.1
+WSSH105	Water Source In Hill_Spectra	2021.12.01_SyuchatarRiver	BhattaDhara_300s.txt	41.0	2.9
+WSSH109	Water Source In Hill_Spectra	2021_09_30_RiverSource	Dakshinkali_1_Spectra_300s.txt	76.0	2.1
+WSSH110	Water Source In Hill_Spectra	2021_09_30_RiverSource	Dakshinkali_4_Spectra_300s.txt	98.0	1.5
+WSSH112	Water Source In Hill_Spectra	2021_09_30_RiverSource	Dakshinkali_2_Spectra_300s.txt	1.0	0.9
+WSSH113	Water Source In Hill_Spectra	2021_09_30_RiverSource	Dakshinkali_5_Spectra_300s.txt	500.0	6.6
+WSSH114	Water Source In Hill_Spectra	2021_09_30_RiverSource	Dakshinkali_6_Spectra_300s.txt	284.0	2.7
+WSSH116	Water Source In Hill_Spectra	2021_09_30_RiverSource	Dakshinkali_3_Spectra_300s.txt	37.0	1.3
+STP126	Stone Tap Patan_Spectra	2021_7_6	MisaHiti_300s.txt	90.0	8.8
+STP127	Stone Tap Patan_Spectra	2021_7_6	TapaHiti_300s.txt	200.0	11.4
+STP128	Stone Tap Patan_Spectra	2021_7_6	PatanSundhara_300s.txt	14500.0	29.7
+STP129	Stone Tap Patan_Spectra	2021_7_6	KontiHiti_300s.txt	100.0	8.7
+STP130	Stone Tap Patan_Spectra	2021_7_6	Makah hiti_300s.txt	680.0	11.8
+STP131	Stone Tap Patan_Spectra	2021.11.24_HitiWater	NaraHiti_Spectra_200s.txt	0.1	14.5
+STP132	Stone Tap Patan_Spectra	2021.11.24_HitiWater	SaugahHiti_Spectra_50s.txt	9600.0	127.6
+STP133	Stone Tap Patan_Spectra	2021.11.24_HitiWater	MangaHiti_Spectra_200s.txt	16000.0	20.6
+STP134	Stone Tap Patan_Spectra	2021.11.24_HitiWater	WakahHiti_Spectra_200s.txt	0.1	14.7
+STP135	Stone Tap Patan_Spectra	2021.11.24_HitiWater	TyagahHiti_Spectra_200s.txt	2.0	28.8
+STP136	Stone Tap Patan_Spectra	2021_7_15_StoneTap_Spectra	Patan_MakahHiti_Sample_1_100s.txt	48000.0	48.4
+STP140	Stone Tap Patan_Spectra	2021_7_15_StoneTap_Spectra	Patan_Sundhara_Sample_2_300s.txt	28000.0	26.4
+STP142	Stone Tap Patan_Spectra	2021_7_15_StoneTap_Spectra	Patan_TapaHiti_Sample_3_300s.txt	1800.0	21.8
+STP145	Stone Tap Patan_Spectra	2021_7_19_StoneTap	Patan_TapaHiiti_300s.txt	500.0	23.4
+STP147	Stone Tap Patan_Spectra	2021_7_19_StoneTap	Patan_MakahHiiti_300s.txt	18000.0	51.8
+STP149	Stone Tap Patan_Spectra	2021_7_19_StoneTap	Patan_Sundhara_300s.txt	14500.0	29.7
+STP152	Stone Tap Patan_Spectra	2021_7_9	Patan_Sundhara_300s.txt	28000.0	26.4
+STP153	Stone Tap Patan_Spectra	2021_7_9	Patan_TapaHiti_300s.txt	500.0	23.4
+HHW174	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	AnushaDidi_300s.txt	500.0	4.5
+HHW175	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	SanketBro_300s.txt	42.0	48.1
+HHW176	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	SumanDai_300s.txt	85.0	41.8
+HHW177	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	PravinDai_300s.txt	0.1	0.7
+HHW178	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	AnushaDidi II_300s.txt	177.0	1.7
+HHW179	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	SuvechhyaDidi_300s.txt	130.0	4.4
+HHW182	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	Prashant_300s.txt	500.0	3.2
+HHW183	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	RijanDai_300s.txt	54.0	95.9
+HHW184	House Hold Water_Spectra	2021_7_22_HouseHoldTapWater	Biomedicum_300s.txt	93.0	36.5
+HHW205	House Hold Water_Spectra	2021_9_23_Municipal	Jadibuti_3_Well_50s.txt	19.0	40.8
+HHW206	House Hold Water_Spectra	2021_9_23_Municipal	Jadibuti_1_300s.txt	11.0	8.4
+HHW207	House Hold Water_Spectra	2021_9_23_Municipal	Patan_boringwell_300s.txt	8.0	13.0
+HHW208	House Hold Water_Spectra	2021_9_23_Municipal	Jadibuti_2_300s.txt	109.0	11.9
+HHW210	House Hold Water_Spectra	2021_9_23_Municipal	Patan_communitywell_150s.txt	74.0	15.2
+JW211	Jar Water_Spectra	2021_9_9_JarWater	AshimDhakal_Spectra_200s.txt	23.0	2.7
+JW212	Jar Water_Spectra	2021_9_9_JarWater	AnushaThapa_Spectra_200s.txt	14.0	1.2
+JW213	Jar Water_Spectra	2021_9_9_JarWater	SumanBasnet_spectra_200s.txt	41.0	3.1
+JW214	Jar Water_Spectra	2021_9_9_JarWater	Sanket_II_spectra_200s.txt	500.0	1.3
+JW217	Jar Water_Spectra	2021_9_9_JarWater	Sanket_I_spectra_300s.txt	2.0	1.8
+JW219	Jar Water_Spectra	2021_7_27_JarWater	Prashant Waiba_300s.txt	459.0	3.0
+JW220	Jar Water_Spectra	2021_7_27_JarWater	Anusha Thapa I_300s.txt	39.0	3.1
+JW221	Jar Water_Spectra	2021_7_27_JarWater	Ankit_300s.txt	0.1	3.1
+JW222	Jar Water_Spectra	2021_7_27_JarWater	Shanket Bohara_300s.txt	0.1	0.4
+JW223	Jar Water_Spectra	2021_7_27_JarWater	Suman Basnet_300s.txt	36.0	1.2
+JW224	Jar Water_Spectra	2021_7_27_JarWater	Manish_300s.txt	9.0	6.2
+JW225	Jar Water_Spectra	2021_7_27_JarWater	RIBB Reference Water_300s.txt	0.1	2.1
+JW226	Jar Water_Spectra	2021_7_27_JarWater	Sanju_300s.txt	0.1	1.6
+JW227	Jar Water_Spectra	2021_7_27_JarWater	Suvechhhya Bastola_300s.txt	2.0	4.3
+JW228	Jar Water_Spectra	2021_7_27_JarWater	Rita Majhi_300s.txt	29.0	1.4
+JW229	Jar Water_Spectra	2021_7_27_JarWater	Anusha Thapa II_300s.txt	177.0	1.7
+JW236	Jar Water_Spectra	2021.12.29_JarWater	Jar_SB_300s.txt	36.0	1.2
+JW240	Jar Water_Spectra	2021.12.29_JarWater	Jar_Ankit_300s.txt	0.1	3.1
+JW243	Jar Water_Spectra	2021.12.23_Jar Water	Jar_SB_300s.txt	2.0	4.3
+JW245	Jar Water_Spectra	2021.12.23_Jar Water	Jar_AT_300s.txt	39.0	3.1
+JW246	Jar Water_Spectra	2021.12.23_Jar Water	Jar_AT2_300s.txt	177.0	1.7
+JW251	Jar Water_Spectra	2021.12.16_Jarwater	Sanket_300s.txt	0.1	0.4
+WSS267	Water Supply System	2021.11.10_Syuchatar_Household_Ward8	Chiran_Spectra_300s.txt	2.0	0.8
+WSS268	Water Supply System	2021.11.10_Syuchatar_Household_Ward8	PanchakanyaSchoolBoringWater_Spectra_300s.txt	0.1	0.9
+WSS271	Water Supply System	2021.11.10_Syuchatar_Household_Ward8	ShivaMandirBoringWater_Spectra_300s.txt	0.1	3.8
+WSS276	Water Supply System	2021_10_06_Syuchatar_Water_Suppy	Sagun_Spectra_300s.txt	103.0	1.3
