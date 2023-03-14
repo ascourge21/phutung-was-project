@@ -34,7 +34,7 @@ TOTAL_WV_POINTS = 1520
 CURVES_INTERP_MIN = 310
 CURVES_INTERP_MAX = 550
 
-N_GRID_SEARCHES = 1
+N_GRID_SEARCHES = 5
 
 
 # load cfu - gold standard / ground truth
@@ -266,10 +266,14 @@ def get_best_param_for_fit(X_train, X_test, y_train, y_test):
 
     for i in range(N_GRID_SEARCHES):
         param_grid = {
-            "bootstrap": [True, False],
-            "max_depth": range(2, 8, 2),
+            "bootstrap": [
+                True,
+            ],
+            "max_depth": range(2, 8, 1),
+            "criterion": ("gini", "entropy", "log_loss"),
             "max_features": ["sqrt", "log2"],
-            "n_estimators": range(5, 20, 3),
+            "n_estimators": range(5, 20, 2),
+            "random_state": (0,)
         }
 
         rfbase = RandomForestClassifier()
@@ -278,7 +282,7 @@ def get_best_param_for_fit(X_train, X_test, y_train, y_test):
             estimator=rfbase,
             param_grid=param_grid,
             scoring=score_function,
-            cv=4,
+            cv=3,
             n_jobs=4,
             verbose=1,
             return_train_score=True,
